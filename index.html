@@ -130,7 +130,7 @@
 
         <!-- KPI 3: 初期投資・運転資金 -->
         <div class="bg-earth-800/90 rounded-xl p-2 sm:p-2.5 border border-earth-700/80">
-          <div class="text-[11px] text-earth-300">初期投資・運転資金</div>
+          <div class="text-[11px] text-earth-300">初期投資（土地・設備）・運転資金</div>
           <div class="flex items-baseline gap-1 mt-0.5">
             <span id="kpiTotalCapex" class="text-base sm:text-lg font-bold text-amber-300">0 万円</span>
           </div>
@@ -206,7 +206,7 @@
           </div>
         </div>
 
-        <!-- 右カラム：経営体制・生活費・資金調達＆妥当性コメント (5列) -->
+        <!-- 右カラム：経営体制・生活費・土地代・資金調達＆妥当性コメント (5列) -->
         <div class="lg:col-span-5 space-y-5">
           <!-- 1. 経営体制・家族生活費・雇用人件費 -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-sand-200 space-y-4">
@@ -293,13 +293,29 @@
             </div>
           </div>
 
-          <!-- 2. 資金調達・融資・補助金 -->
+          <!-- 2. 土地代（農地購入費・年間賃借料）・資金調達・融資・補助金 -->
           <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-sand-200 space-y-3">
             <div>
               <h3 class="text-base font-bold text-earth-900 flex items-center gap-2">
-                <span>💰</span><span>資金調達・融資・経営開始資金・設備補助金</span>
+                <span>🏞️</span><span>土地代（農地購入・賃借料）・資金調達・融資・補助金</span>
               </h3>
-              <p class="text-xs text-gray-500 mt-0.5">自己資金、青年等就農資金（無利子）、一般農業融資、経営開始資金（年150万円×最長3年）、および機械・ハウス設備補助率を設定します。</p>
+              <p class="text-xs text-gray-500 mt-0.5">農地購入費は初期投資およびB/S「固定資産（土地・非償却）」に計上され、年間農地賃借料は毎年の経営費・キャッシュアウトに反映されます。</p>
+            </div>
+
+            <!-- 土地代（購入費・年間賃借料） -->
+            <div class="p-3 rounded-xl bg-amber-50/50 border border-amber-200 space-y-2">
+              <div class="text-xs font-bold text-amber-950">🏞️ 農地取得費（土地代）・年間農地賃借料（小作料）</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-medium text-gray-700 mb-1">農地購入費・土地代（万円）</label>
+                  <input type="number" id="landPurchaseCost" min="0" max="100000" step="10" onchange="updateStateFromInputs()" class="w-full rounded-lg border-gray-300 border px-2.5 py-2 text-sm bg-white focus:ring-2 focus:ring-earth-500 outline-none" />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-medium text-gray-700 mb-1">年間農地賃借料（万円/年）</label>
+                  <input type="number" id="annualLandRentInput" min="0" max="5000" step="1" onchange="updateStateFromInputs()" class="w-full rounded-lg border-gray-300 border px-2.5 py-2 text-sm bg-white focus:ring-2 focus:ring-earth-500 outline-none" />
+                </div>
+              </div>
+              <div id="landCostCommentBox"></div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -568,7 +584,7 @@
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-sand-200">
           <div class="text-xs text-gray-500">初期投資回収期間（目安）</div>
           <div id="simPaybackPeriod" class="text-xl sm:text-2xl font-bold text-amber-600 mt-1">-- 年</div>
-          <div id="simCapexSub" class="text-[11px] text-gray-500 mt-0.5">実質初期投資: 0 万円</div>
+          <div id="simCapexSub" class="text-[11px] text-gray-500 mt-0.5">実質初期投資（土地・設備）: 0 万円</div>
         </div>
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-sand-200">
           <div class="text-xs text-gray-500">1年目 損益分岐点売上高</div>
@@ -589,7 +605,7 @@
             <span>📈</span><span>5ヵ年 損益計算書（P/L）・キャッシュフロー推移シミュレーション</span>
           </h2>
           <p class="text-xs text-gray-500 mt-0.5">
-            就農1年目（習熟80%）・2年目（90%）・3年目以降（100〜105%）の収量カーブ、地域気候係数、年次別販路配分による単価・手数料変化、地代・減価償却費・家族生活費（事業主貸）を統合反映しています。
+            就農1年目（習熟80%）・2年目（90%）・3年目以降（100〜105%）の収量カーブ、地域気候係数、年次別販路配分による単価・手数料変化、農地賃借料・減価償却費・家族生活費（事業主貸）を統合反映しています。
           </p>
         </div>
 
@@ -623,7 +639,7 @@
             <h3 class="text-base sm:text-lg font-bold text-earth-900 flex items-center gap-2">
               <span>🗓️</span><span>月次資金繰りシミュレーター（1月〜12月 季節変動キャッシュフロー）</span>
             </h3>
-            <p class="text-xs text-gray-500 mt-0.5">播種・定植月の資材費先行支出と収穫月の売上入金（売掛入金1ヶ月遅れオプション付）、毎月の生活費・人件費による資金ショート月を赤色で警告表示します。</p>
+            <p class="text-xs text-gray-500 mt-0.5">播種・定植月の資材費先行支出と収穫月の売上入金（売掛入金1ヶ月遅れオプション付）、毎月の生活費・人件費・農地賃借料による資金ショート月を赤色で警告表示します。</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <label class="inline-flex items-center gap-1.5 text-xs bg-sand-100 px-3 py-1.5 rounded-xl border border-sand-200 cursor-pointer">
@@ -676,7 +692,7 @@
               <span>⚖️</span><span>予測貸借対照表（バランスシート：B/S）開業時〜5年目末</span>
             </h3>
             <p class="text-xs text-gray-500 mt-0.5">
-              「左＝資産（流動資産・固定資産）」と「右＝負債・純資産」を左右積み上げブロックグラフで直感的に可視化しつつ、精密な勘定科目表と財務安全性指標を確認できます。
+              固定資産に「土地（非償却）」と「設備・農機（償却後帳簿価額）」を明示計上。「左＝資産」と「右＝負債・純資産」を左右積み上げブロックグラフと勘定科目表で確認できます。
             </p>
           </div>
           <div class="flex items-center gap-3 bg-sand-100 px-3.5 py-2 rounded-xl border border-sand-200">
@@ -725,7 +741,7 @@
           <div class="p-3.5 rounded-xl bg-sand-50 border border-sand-200">
             <div class="text-xs text-gray-500">5年目末 固定長期適合率（固定資産 ÷ 長期資金）</div>
             <div id="bsFixedLongRatioVal" class="text-xl font-bold text-earth-900 mt-1">0.0%</div>
-            <div id="bsFixedLongRatioSub" class="text-[11px] text-gray-600 mt-0.5">目安: 100%以下で設備投資と長期資金が均衡</div>
+            <div id="bsFixedLongRatioSub" class="text-[11px] text-gray-600 mt-0.5">目安: 100%以下で設備・土地と長期資金が均衡</div>
           </div>
         </div>
 
@@ -762,7 +778,7 @@
             <h2 class="text-base sm:text-lg font-bold text-earth-900 flex items-center gap-2">
               <span>🛡️</span><span>新規就農 潜在リスク自動診断＆改善アクション</span>
             </h2>
-            <p class="text-xs text-gray-500 mt-0.5">資金ショート・労働ピーク・連作障害/病害虫・単一作物/販路依存・初期投資回収・B/S健全性を横断分析し、対策を提示します。</p>
+            <p class="text-xs text-gray-500 mt-0.5">資金ショート・労働ピーク・連作障害/病害虫・単一作物/販路依存・土地/設備投資・B/S健全性を横断分析し、対策を提示します。</p>
           </div>
           <button type="button" onclick="askAiAboutRisks()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-earth-950 text-xs font-bold shadow-sm transition flex items-center gap-1.5">
             <span>🤖</span><span>この診断結果をAIと壁打ちする</span>
@@ -838,15 +854,15 @@
 
     <!-- クイック質問サジェスト -->
     <div class="px-4 py-2.5 bg-earth-50 border-b border-earth-100">
-      <div class="text-[11px] font-bold text-earth-800 mb-1.5">💡 現在の数値・相場診断・B/Sをもとにワンクリック壁打ち：</div>
+      <div class="text-[11px] font-bold text-earth-800 mb-1.5">💡 現在の数値・土地代・B/Sをもとにワンクリック壁打ち：</div>
       <div class="flex flex-wrap gap-1.5">
-        <button type="button" onclick="sendSuggestedPrompt('資金ショートの回避策は？現在の月次キャッシュフローと最低現預金残高をもとに具体的な対策を教えてください。')" class="text-[11px] bg-white hover:bg-earth-100 text-earth-900 border border-earth-200 px-2.5 py-1 rounded-full transition text-left">
+        <button type="button" onclick="sendSuggestedPrompt('資金ショートの回避策は？現在の月次キャッシュフロー・土地代/賃借料・最低現預金残高をもとに具体的な対策を教えてください。')" class="text-[11px] bg-white hover:bg-earth-100 text-earth-900 border border-earth-200 px-2.5 py-1 rounded-full transition text-left">
           💸 資金ショートの回避策は？
         </button>
         <button type="button" onclick="sendSuggestedPrompt('この作付リレーの労働ピークを診断して。家族専従・雇用体制で無理がないか、作期ずらしや品目改善案も教えてください。')" class="text-[11px] bg-white hover:bg-earth-100 text-earth-900 border border-earth-200 px-2.5 py-1 rounded-full transition text-left">
           🌽 この作付リレーの労働ピークを診断して
         </button>
-        <button type="button" onclick="sendSuggestedPrompt('公庫の融資審査（青年等就農計画）を通す改善点は？現在のB/S自己資本比率・収量単価の妥当性・販路計画を厳しく査定してください。')" class="text-[11px] bg-white hover:bg-earth-100 text-earth-900 border border-earth-200 px-2.5 py-1 rounded-full transition text-left">
+        <button type="button" onclick="sendSuggestedPrompt('公庫の融資審査（青年等就農計画）を通す改善点は？現在の土地購入/賃借バランス・B/S自己資本比率・収量単価の妥当性・販路計画を厳しく査定してください。')" class="text-[11px] bg-white hover:bg-earth-100 text-earth-900 border border-earth-200 px-2.5 py-1 rounded-full transition text-left">
           🏦 公庫の融資審査を通す改善点は？
         </button>
       </div>
@@ -856,7 +872,7 @@
     <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 space-y-3 bg-sand-50/40">
       <div class="bg-white border border-sand-200 rounded-2xl rounded-tl-none p-3.5 text-xs text-gray-700 shadow-xs space-y-1.5">
         <div class="font-bold text-earth-800">🌱 Agri-Launchpad 経営コンサルタントAI</div>
-        <p>あなたの現在の<strong>就農地域・圃場面積・リレー作付・1〜5年目の年次別販路配分・人件費・生活費・5年CF・バランスシート（B/S）・リスク診断</strong>をリアルタイムで把握しています。</p>
+        <p>あなたの現在の<strong>就農地域・圃場面積・リレー作付・1〜5年目の年次別販路配分・土地代/賃借料・人件費・生活費・5年CF・バランスシート（B/S）・リスク診断</strong>をリアルタイムで把握しています。</p>
         <p>上のAPIキー欄にご自身のキーを設定のうえ、経営計画の壁打ちや数値改善の相談をしてみてください。</p>
       </div>
     </div>
@@ -878,7 +894,7 @@
         <h3 class="text-base font-bold text-gray-900">データのリセット・初期設定</h3>
       </div>
       <p class="text-xs text-gray-600 leading-relaxed">
-        すべての数値（自己資金・融資・生活費・人件費・販促費）、ロードマップのチェック状態、作付スロット、販路設定を<strong>ゼロ（白紙状態）</strong>にリセットして1から作成できます。<br>
+        すべての数値（自己資金・融資・土地代/賃借料・生活費・人件費・販促費）、ロードマップのチェック状態、作付スロット、販路設定を<strong>ゼロ（白紙状態）</strong>にリセットして1から作成できます。<br>
         <span class="text-[11px] text-gray-500">※ブラウザに保存されているGemini APIキーは消去されません。</span>
       </p>
       <div class="flex flex-col sm:flex-row justify-between gap-2 pt-2 border-t border-gray-100">
@@ -1465,7 +1481,7 @@
         items: [
           { id: 'rm_5', title: '農業大学校・先進農家での栽培技術・機械操作研修の修了', weight: 8 },
           { id: 'rm_6', title: '営農品目・作付リレー計画および防除暦・作業工程の設計完了', weight: 7 },
-          { id: 'rm_7', title: '農地中間管理機構（農地バンク）・農業委員会を通じた農地賃借契約', weight: 9 },
+          { id: 'rm_7', title: '農地中間管理機構（農地バンク）・農業委員会を通じた農地購入・賃借契約', weight: 9 },
           { id: 'rm_8', title: '「青年等就農計画」認定取得・公庫融資＆経営開始資金の申請完了', weight: 9 }
         ]
       },
@@ -1501,7 +1517,7 @@
     // 2. アプリケーション状態（State）管理・ゼロリセット・サンプル・JSON入出力
     // =========================================================================
 
-    const STORAGE_KEY = 'agri_launchpad_state_v6';
+    const STORAGE_KEY = 'agri_launchpad_state_v7';
     const API_KEY_STORAGE = 'agri_launchpad_gemini_key';
 
     let appState = getZeroState();
@@ -1549,15 +1565,10 @@
       };
     }
 
-    function createZeroYearlyChannels() {
-      const z = { ja: 0, direct: 0, b2b: 0, ec: 0, tourism: 0 };
-      return { 1: { ...z }, 2: { ...z }, 3: { ...z }, 4: { ...z }, 5: { ...z } };
-    }
-
     // 完全ゼロ（白紙）状態
     function getZeroState() {
       return {
-        schemaVersion: '1.1',
+        schemaVersion: '1.2',
         regionId: 'north_kanto',
         checkedRoadmap: [],
         householdSize: 1,
@@ -1571,6 +1582,8 @@
         partTimeHourly: 0,
         partTimeHoursPerMonth: 0,
         partTimeMonthsPerYear: 12,
+        landPurchaseCost: 0,
+        annualLandRent: 0,
         ownCapital: 0,
         generalCapex: 0,
         capexSubsidyRate: 0,
@@ -1595,7 +1608,7 @@
     // サンプルモデルケース（モーダルから読込可能）
     function getSampleModelState() {
       return {
-        schemaVersion: '1.1',
+        schemaVersion: '1.2',
         regionId: 'north_kanto',
         checkedRoadmap: ['rm_1', 'rm_2', 'rm_3', 'rm_4', 'rm_5'],
         householdSize: 3,
@@ -1609,6 +1622,8 @@
         partTimeHourly: 1100,
         partTimeHoursPerMonth: 60,
         partTimeMonthsPerYear: 8,
+        landPurchaseCost: 80,
+        annualLandRent: 15,
         ownCapital: 450,
         generalCapex: 220,
         capexSubsidyRate: 0,
@@ -1701,8 +1716,9 @@
       if (!raw || typeof raw !== 'object') return def;
 
       const merged = { ...def, ...raw };
+      merged.landPurchaseCost = Math.max(0, parseFloat(merged.landPurchaseCost) || 0);
+      merged.annualLandRent = Math.max(0, parseFloat(merged.annualLandRent) || 0);
 
-      // 旧トマトID互換
       const remapCropId = cid => (cid === 'tomato' ? 'tomato_large' : cid);
 
       if (!Array.isArray(merged.checkedRoadmap)) merged.checkedRoadmap = [];
@@ -1835,7 +1851,6 @@
         if (saved) {
           appState = migrateAndValidateState(JSON.parse(saved));
         } else {
-          // 初回アクセス時はサンプルモデルケースを初期表示（ゼロリセットで即白紙化可能）
           appState = getSampleModelState();
         }
       } catch (e) {
@@ -1873,7 +1888,7 @@
       syncInputsFromState();
       recalculateAndRenderAll();
       closeResetModal();
-      showToast('サンプル経営モデルケース（4圃場リレー・スイートコーン等）を読み込みました');
+      showToast('サンプル経営モデルケース（4圃場リレー・スイートコーン・土地代/賃借料等）を読み込みました');
     }
 
     function switchTab(tabNum) {
@@ -1914,6 +1929,9 @@
       document.getElementById('partTimeHoursPerMonth').value = appState.partTimeHoursPerMonth;
       document.getElementById('partTimeMonthsPerYear').value = appState.partTimeMonthsPerYear || 12;
 
+      document.getElementById('landPurchaseCost').value = appState.landPurchaseCost || 0;
+      document.getElementById('annualLandRentInput').value = appState.annualLandRent || 0;
+
       document.getElementById('ownCapital').value = appState.ownCapital;
       document.getElementById('generalCapex').value = appState.generalCapex;
       document.getElementById('capexSubsidyRate').value = appState.capexSubsidyRate || 0;
@@ -1949,6 +1967,9 @@
       appState.partTimeHourly = Math.max(0, parseFloat(document.getElementById('partTimeHourly').value) || 0);
       appState.partTimeHoursPerMonth = Math.max(0, parseFloat(document.getElementById('partTimeHoursPerMonth').value) || 0);
       appState.partTimeMonthsPerYear = Math.max(1, Math.min(12, parseInt(document.getElementById('partTimeMonthsPerYear').value) || 12));
+
+      appState.landPurchaseCost = Math.max(0, parseFloat(document.getElementById('landPurchaseCost').value) || 0);
+      appState.annualLandRent = Math.max(0, parseFloat(document.getElementById('annualLandRentInput').value) || 0);
 
       appState.ownCapital = Math.max(0, parseFloat(document.getElementById('ownCapital').value) || 0);
       appState.generalCapex = Math.max(0, parseFloat(document.getElementById('generalCapex').value) || 0);
@@ -2079,7 +2100,7 @@
     }
 
     // =========================================================================
-    // 5. コア経営・収支・キャッシュフロー・B/S計算エンジン（ゼロリセット完全対応）
+    // 5. コア経営・収支・キャッシュフロー・B/S計算エンジン（土地代・賃借料統合）
     // =========================================================================
 
     function getMonthRangeList(startMonth, endMonth) {
@@ -2151,12 +2172,18 @@
       });
       const totalCroppedArea10a = appState.plots.reduce((sum, p) => sum + p.area10a, 0);
 
-      // 3. 初期投資総額（CAPEX）＆設備補助金控除後実質投資＆調達資金
+      // 3. 初期投資総額（設備・ブランド・土地購入費）＆設備補助金控除後実質投資＆調達資金
+      const landPurchaseCost = Math.max(0, parseFloat(appState.landPurchaseCost) || 0);
+      const annualLandRent = Math.max(0, parseFloat(appState.annualLandRent) || 0);
+
       const plotCapexTotal = appState.plots.reduce((sum, p) => sum + (parseFloat(p.customCapex) || 0), 0);
-      const grossCapex = appState.generalCapex + plotCapexTotal + appState.initialBrandingCost;
+      const depreciableCapexGross = appState.generalCapex + plotCapexTotal + appState.initialBrandingCost;
       const eligibleCapex = appState.generalCapex + plotCapexTotal;
       const capexSubsidyAmount = eligibleCapex * ((appState.capexSubsidyRate || 0) / 100);
-      const totalCapex = Math.max(0, grossCapex - capexSubsidyAmount);
+      const depreciableCapexNet = Math.max(0, depreciableCapexGross - capexSubsidyAmount);
+
+      const grossCapex = depreciableCapexGross + landPurchaseCost;
+      const totalCapex = depreciableCapexNet + landPurchaseCost;
 
       const totalLoanAmount = appState.jfcLoanAmount + appState.genLoanAmount;
       const initialFunds = appState.ownCapital + totalLoanAmount;
@@ -2222,11 +2249,10 @@
         }
       });
 
-      // 6. 5ヵ年P/L・月次CF・B/Sシミュレーション
+      // 6. 5ヵ年P/L・月次CF・B/Sシミュレーション（土地は非償却固定資産、償却対象は設備・農機・ブランド）
       const learningCurves = [0.80, 0.90, 1.00, 1.02, 1.05];
       const depYears = Math.max(5, Math.min(10, appState.depreciationYears || 7));
-      const depreciationAnnual = totalCapex / depYears;
-      const annualLandRent = totalArea10a * region.rentPer10a;
+      const depreciationAnnual = depreciableCapexNet / depYears;
       const subsidyAnnualAmount = appState.subsidyEnabled ? 150 : 0;
       const livingGrowth = (appState.livingCostGrowthRate || 0) / 100;
 
@@ -2243,6 +2269,8 @@
           label: '開業時(0年目末)',
           year: 0,
           cash: initialWorkingCapital,
+          landAssets: landPurchaseCost,
+          equipAssets: depreciableCapexNet,
           fixedAssets: totalCapex,
           totalAssets: initialWorkingCapital + totalCapex,
           longTermDebt: totalLoanAmount,
@@ -2399,7 +2427,8 @@
         const yearEndReceivables = appState.salesLagOneMonth
           ? (carryOverSalesFromPrevDec - carryOverFeeFromPrevDec) * (1 - 0.45)
           : 0;
-        const fixedAssetsEnd = Math.max(0, totalCapex - depreciationAnnual * y);
+        const equipAssetsEnd = Math.max(0, depreciableCapexNet - depreciationAnnual * y);
+        const fixedAssetsEnd = landPurchaseCost + equipAssetsEnd;
         const currentAssetsEnd = runningCash + yearEndReceivables;
         const totalAssetsEnd = currentAssetsEnd + fixedAssetsEnd;
 
@@ -2413,6 +2442,8 @@
           label: `${y}年目末`,
           year: y,
           cash: currentAssetsEnd,
+          landAssets: landPurchaseCost,
+          equipAssets: equipAssetsEnd,
           fixedAssets: fixedAssetsEnd,
           totalAssets: totalAssetsEnd,
           longTermDebt: longTermDebtEnd,
@@ -2488,13 +2519,15 @@
         openArea10a,
         houseArea10a,
         totalCroppedArea10a,
+        landPurchaseCost,
+        annualLandRent,
+        depreciableCapexNet,
         grossCapex,
         capexSubsidyAmount,
         totalCapex,
         totalLoanAmount,
         initialFunds,
         initialWorkingCapital,
-        annualLandRent,
         years: yearsData,
         bsSeries,
         bsMetrics: {
@@ -2557,7 +2590,7 @@
       const gap = sim.initialWorkingCapital;
       const gapEl = document.getElementById('kpiFundingGap');
       if (gap >= 0) {
-        gapEl.textContent = `開業時運転資金: +${formatYen(gap)}万円`;
+        gapEl.textContent = `土地${formatYen(sim.landPurchaseCost)}万込・運転資金+${formatYen(gap)}万`;
         gapEl.className = 'text-[10px] text-emerald-300 mt-0.5 truncate';
       } else {
         gapEl.textContent = `⚠️ 初期資金不足: ${formatYen(gap)}万円`;
@@ -2628,6 +2661,20 @@
       document.getElementById('annualLivingDisplay').textContent = `${formatYen(appState.monthlyLivingCost * 12)} 万円 / 年`;
       document.getElementById('annualLaborDisplay').textContent = `${formatYen(sim.years[0].labor)} 万円 / 年`;
 
+      // 土地代・農地賃借料の妥当性コメント
+      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
+      const landBox = document.getElementById('landCostCommentBox');
+      const suggestedRent = sim.totalArea10a > 0 ? sim.totalArea10a * region.rentPer10a : 0;
+      if (sim.landPurchaseCost === 0 && sim.annualLandRent === 0) {
+        landBox.innerHTML = renderValidityBadgeBox('info', '土地代・賃借料：未入力（0万円）', `${region.name}の標準賃借料目安は10aあたり年${region.rentPer10a}万円前後です（現在面積換算で約${formatYen(suggestedRent)}万円/年）。借りる場合は賃借料、買う場合は土地購入費を入力してください。`);
+      } else if (sim.landPurchaseCost > 0 && sim.ownCapital < sim.landPurchaseCost * 0.3) {
+        landBox.innerHTML = renderValidityBadgeBox('warn', `土地購入費（${formatYen(sim.landPurchaseCost)}万円）の妥当性：自己資金比率に注意`, `農地取得は初期資金を大きく消費します（土地はB/S固定資産に計上されますが減価償却されません）。新規就農初期はまず「農地バンク等で賃借」し、収益安定後に購入する選択肢も検討しましょう。`);
+      } else if (sim.annualLandRent > 0 && sim.totalArea10a > 0 && sim.annualLandRent > suggestedRent * 2.2) {
+        landBox.innerHTML = renderValidityBadgeBox('warn', `年間賃借料（${formatYen(sim.annualLandRent)}万円/年）の妥当性：地域相場より高め`, `選択地域の標準賃借料目安（約${formatYen(suggestedRent)}万円/年）を大きく上回っています。農地中間管理機構（農地バンク）の活用や条件交渉を確認してください。`);
+      } else {
+        landBox.innerHTML = renderValidityBadgeBox('good', `土地代・賃借料の妥当性：計画に反映中`, `土地購入費 ${formatYen(sim.landPurchaseCost)}万円（B/S土地資産・非償却）および年間賃借料 ${formatYen(sim.annualLandRent)}万円/年（毎年の経営費・CF）を収支計算に反映しています。`);
+      }
+
       const livingBox = document.getElementById('livingCostCommentBox');
       const suggestedMinLiving = 14 + (appState.householdSize * 4);
       if (appState.monthlyLivingCost === 0) {
@@ -2653,9 +2700,9 @@
       const fundingBox = document.getElementById('fundingCommentBox');
       const ownRatio = sim.totalCapex > 0 ? (appState.ownCapital / sim.totalCapex) * 100 : 100;
       if (sim.totalCapex === 0 && sim.initialFunds === 0) {
-        fundingBox.innerHTML = renderValidityBadgeBox('info', '資金計画：未入力（ゼロ状態）', `自己資金、共通農機投資、青年等就農資金（無利子融資）を入力すると、開業時運転資金と公庫審査基準の妥当性が自動診断されます。`);
+        fundingBox.innerHTML = renderValidityBadgeBox('info', '資金計画：未入力（ゼロ状態）', `自己資金、土地代・共通農機投資、青年等就農資金（無利子融資）を入力すると、開業時運転資金と公庫審査基準の妥当性が自動診断されます。`);
       } else if (sim.initialWorkingCapital < 100) {
-        fundingBox.innerHTML = renderValidityBadgeBox('danger', '資金調達の妥当性：開業直後の運転資金不足', `実質初期投資（${formatYen(sim.totalCapex)}万円）支払後の手元運転資金が ${formatYen(sim.initialWorkingCapital)}万円 しか残りません。種苗・肥料代や生活費の支払いに備え、融資額を増やすか設備投資を圧縮してください。`);
+        fundingBox.innerHTML = renderValidityBadgeBox('danger', '資金調達の妥当性：開業直後の運転資金不足', `実質初期投資（土地・設備計 ${formatYen(sim.totalCapex)}万円）支払後の手元運転資金が ${formatYen(sim.initialWorkingCapital)}万円 しか残りません。種苗・肥料代や生活費の支払いに備え、融資額を増やすか初期投資を圧縮してください。`);
       } else if (ownRatio < 20 && sim.totalLoanAmount > 0) {
         fundingBox.innerHTML = renderValidityBadgeBox('warn', '自己資金比率の妥当性：公庫審査基準に注意', `実質投資額に対する自己資金比率が ${Math.round(ownRatio)}% です。日本政策金融公庫の「青年等就農資金」審査では、原則として総事業費の20〜30%以上の自己資金が望ましいとされます。`);
       } else {
@@ -2679,7 +2726,7 @@
         <div class="space-y-1">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="text-xs font-bold text-earth-900">🌤️ 気候・作型特性：${region.climate}（収量係数 ×${region.yieldMult.toFixed(2)}）</span>
-            <span class="text-[11px] font-bold bg-white text-earth-800 px-2.5 py-0.5 rounded-full border border-earth-200">標準地代: ${region.rentPer10a}万円/10a・年（年間地代 ${formatYen(sim.annualLandRent)}万円）</span>
+            <span class="text-[11px] font-bold bg-white text-earth-800 px-2.5 py-0.5 rounded-full border border-earth-200">地域賃借料目安: ${region.rentPer10a}万円/10a・年（設定賃借料 ${formatYen(sim.annualLandRent)}万円/年）</span>
           </div>
           <div class="text-xs text-gray-700">❄️ 冬期凍結・気象リスク：${region.winterFreezeRisk} ｜ 🪨 土壌特性：${region.soil}</div>
           <div class="text-xs text-rose-700">⚠️ 地域特有の病害虫・獣害リスク：${region.pests}</div>
@@ -3271,7 +3318,7 @@
       document.getElementById('simY5SalesSub').textContent = `5年目予測: ${formatYen(y5.sales)} 万円（習熟＋販路成長）`;
 
       document.getElementById('simPaybackPeriod').textContent = sim.paybackYear ? `約 ${sim.paybackYear} 年` : '5年超（要改善）';
-      document.getElementById('simCapexSub').textContent = `実質初期投資: ${formatYen(sim.totalCapex)} 万円`;
+      document.getElementById('simCapexSub').textContent = `実質初期投資（土地${formatYen(sim.landPurchaseCost)}万＋設備${formatYen(sim.depreciableCapexNet)}万）`;
 
       document.getElementById('simBreakEvenSales').textContent = `${formatYen(sim.breakEvenSales)} 万円`;
       document.getElementById('simVariableRatioSub').textContent = `直接変動費率: ${Math.round(sim.y1VarRatio * 100)}%`;
@@ -3287,7 +3334,7 @@
         { label: '売上高（年次別販路反映）', key: 'sales', bold: true, color: 'text-earth-900' },
         { label: '（－）販売手数料', key: 'fee', bold: false, color: 'text-gray-600' },
         { label: '（－）変動・営農経費（種苗・肥料・農薬等）', key: 'material', bold: false, color: 'text-gray-600' },
-        { label: `（－）減価償却費（設備${depYears}年均等）`, key: 'depreciation', bold: false, color: 'text-gray-500' },
+        { label: `（－）減価償却費（設備・農機${depYears}年均等・土地非償却）`, key: 'depreciation', bold: false, color: 'text-gray-500' },
         { label: '（－）雇用人件費（常勤・パート）', key: 'labor', bold: false, color: 'text-gray-600' },
         { label: '（－）販促費・農地賃借料', key: 'promoAndRent', bold: false, color: 'text-gray-600' },
         { label: '営業利益', key: 'operatingProfit', bold: true, bg: 'bg-sand-50', signed: true },
@@ -3384,7 +3431,7 @@
         { label: '経営費・資材費', key: 'material', color: 'text-gray-600' },
         { label: '販売手数料・販促', key: 'feeAndPromo', color: 'text-gray-600' },
         { label: '雇用人件費', key: 'labor', color: 'text-gray-600' },
-        { label: '地代・借入返済', key: 'rentAndDebt', color: 'text-gray-600' },
+        { label: '農地賃借料・借入返済', key: 'rentAndDebt', color: 'text-gray-600' },
         { label: '家族生活費', key: 'living', color: 'text-amber-800' },
         { label: '月次純キャッシュ増減', key: 'netCashFlow', signed: true, bg: 'bg-sand-50' },
         { label: '月末現預金残高', key: 'endingCash', signed: true, bg: 'bg-earth-50' }
@@ -3544,10 +3591,10 @@
 
                 <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
                   <div class="flex items-center justify-between text-[11px] font-bold text-emerald-900">
-                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-emerald-600 inline-block"></span>固定資産（設備・農機）</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-emerald-600 inline-block"></span>固定資産（土地・設備・農機）</span>
                     <span>${formatYen(cur.fixedAssets)} 万円</span>
                   </div>
-                  <p class="text-[10px] text-emerald-800/80 mt-0.5">ハウス・農機・初期投資の減価償却後帳簿残高</p>
+                  <p class="text-[10px] text-emerald-800/80 mt-0.5">土地 ${formatYen(cur.landAssets)}万 ＋ 設備・農機(償却後) ${formatYen(cur.equipAssets)}万</p>
                 </div>
 
                 ${negCash < 0 ? `
@@ -3675,74 +3722,55 @@
       document.getElementById('bsEquityRatioSub').textContent = `開業時: ${equityRatio0.toFixed(1)}%（目安: 30%以上で健全）`;
 
       const debtEl = document.getElementById('bsDebtYearsVal');
-      if (bs5.longTermDebt <= 0) {
-        debtEl.textContent = '無借金 (0.0年)';
-        debtEl.className = 'text-xl font-bold mt-1 text-emerald-700';
-      } else if (debtServiceYears >= 50) {
-        debtEl.textContent = '償還困難（CF不足）';
-        debtEl.className = 'text-xl font-bold mt-1 text-rose-600';
-      } else {
-        debtEl.textContent = `約 ${debtServiceYears.toFixed(1)} 年`;
-        debtEl.className = `text-xl font-bold mt-1 ${debtServiceYears <= 10 ? 'text-emerald-700' : 'text-amber-600'}`;
-      }
+      debtEl.textContent = bs5.longTermDebt <= 0 ? '0.0 年（借入無）' : (debtServiceYears >= 99 ? '返済難' : `${debtServiceYears.toFixed(1)} 年`);
+      debtEl.className = `text-xl font-bold mt-1 ${bs5.longTermDebt <= 0 || debtServiceYears <= 10 ? 'text-emerald-700' : 'text-rose-600'}`;
       document.getElementById('bsDebtYearsSub').textContent = `5年目借入残高: ${formatYen(bs5.longTermDebt)}万円（目安: 10年以内）`;
 
       const flEl = document.getElementById('bsFixedLongRatioVal');
-      if (fixedToLongTermRatio5 >= 500) {
-        flEl.textContent = '算出不能（債務超過）';
-        flEl.className = 'text-xl font-bold mt-1 text-rose-600';
-      } else {
-        flEl.textContent = `${fixedToLongTermRatio5.toFixed(1)}%`;
-        flEl.className = `text-xl font-bold mt-1 ${fixedToLongTermRatio5 <= 100 ? 'text-emerald-700' : 'text-rose-600'}`;
-      }
-      document.getElementById('bsFixedLongRatioSub').textContent = '目安: 100%以下で設備投資と長期資金が均衡';
+      flEl.textContent = bs5.fixedAssets <= 0 ? '0.0%' : `${fixedToLongTermRatio5.toFixed(1)}%`;
+      flEl.className = `text-xl font-bold mt-1 ${fixedToLongTermRatio5 <= 100 ? 'text-emerald-700' : 'text-rose-600'}`;
+      document.getElementById('bsFixedLongRatioSub').textContent = `5年末 土地${formatYen(bs5.landAssets)}万＋設備${formatYen(bs5.equipAssets)}万（目安: 100%以下）`;
 
-      const bsBox = document.getElementById('bsDiagnosisBox');
-      if (bs5.totalAssets === 0 && bs5.totalEquity === 0) {
-        bsBox.innerHTML = renderValidityBadgeBox('info', '貸借対照表（B/S）：ゼロ状態', `自己資金・融資・設備投資・作付計画を入力すると、開業時から5年目末までの予測貸借対照表と財務安全性指標がリアルタイムで算出されます。`);
-      } else if (bs5.totalEquity < 0) {
-        bsBox.innerHTML = renderValidityBadgeBox('danger', '貸借対照表（B/S）診断：5年目末時点で債務超過リスク', `累積の生活費引き出し（事業主貸）や初期投資の減価償却負担に対し利益蓄積が追いつかず、5年目末の純資産が ${formatYen(bs5.totalEquity)}万円（債務超過）となっています。設備投資の圧縮、高収益品目・EC比率引き上げ、または生活費の見直しが必要です。`);
-      } else if (equityRatio5 < 30 || debtServiceYears > 10) {
-        bsBox.innerHTML = renderValidityBadgeBox('warn', '貸借対照表（B/S）診断：財務体質の改善余地あり', `5年目末の自己資本比率は ${equityRatio5.toFixed(1)}%、借入金残高は ${formatYen(bs5.longTermDebt)}万円 です。公庫・銀行の評価をより高めるには、3〜5年目の営業利益率を高めて繰越利益剰余金を厚くする計画が有効です。`);
+      const bsDiagBox = document.getElementById('bsDiagnosisBox');
+      if (bs5.totalEquity < 0) {
+        bsDiagBox.innerHTML = renderValidityBadgeBox('danger', 'バランスシート警告：5年目末で純資産マイナス（債務超過リスク）', `5年目末の純資産が ${formatYen(bs5.totalEquity)}万円 となっています。家族生活費・農地賃借料・減価償却費に対して営業利益が不足しているため、高単価品目や直販比率の引き上げ、固定費見直しが必要です。`);
+      } else if (fixedToLongTermRatio5 > 100) {
+        bsDiagBox.innerHTML = renderValidityBadgeBox('warn', 'バランスシート注意：固定長期適合率が100%超', `土地・設備などの固定資産合計（${formatYen(bs5.fixedAssets)}万円）を純資産＋長期借入で賄いきれていません。短期的な手元資金を圧迫しやすいため、借入返済期間の長め設定や自己資金増強を検討してください。`);
+      } else if (equityRatio5 >= 30) {
+        bsDiagBox.innerHTML = renderValidityBadgeBox('good', `バランスシート健全：5年目末 自己資本比率 ${equityRatio5.toFixed(1)}%`, `土地（非償却 ${formatYen(bs5.landAssets)}万円）と減価償却が進んだ設備・農機、蓄積された現金・純資産のバランスが良好で、金融機関からの追加投資も検討しやすい財務体質です。`);
       } else {
-        bsBox.innerHTML = renderValidityBadgeBox('good', '貸借対照表（B/S）診断：金融機関から高評価を得られる健全な財務体質', `5年目末の自己資本比率は ${equityRatio5.toFixed(1)}% に向上し、固定長期適合率も ${fixedToLongTermRatio5.toFixed(1)}%（100%以下）と非常にバランスが取れています。`);
+        bsDiagBox.innerHTML = renderValidityBadgeBox('info', `バランスシート推移：5年目末 自己資本比率 ${equityRatio5.toFixed(1)}%`, `借入返済と利益蓄積が進んでいます。自己資本比率30%以上を目指し、無理のない生活費設定と収益性維持を続けましょう。`);
       }
 
       const bsRows = [
         { section: '【資産の部】' },
-        { label: '流動資産（現預金・売掛金）', key: 'cash', signed: true },
-        { label: '固定資産（農業用設備・農機 帳簿価額）', key: 'fixedAssets' },
-        { label: '資産合計', key: 'totalAssets', bold: true, bg: 'bg-earth-50', signed: true },
-        { section: '【負債の部】' },
-        { label: '固定負債（長期借入金残高）', key: 'longTermDebt' },
-        { label: '負債合計', key: 'totalLiabilities', bold: true, bg: 'bg-sand-50' },
-        { section: '【純資産の部】' },
-        { label: '元入金（開業時自己資金）', key: 'paidInCapital' },
-        { label: '繰越利益剰余金（累積利益 − 家族生活費事業主貸）', key: 'retainedEarnings', signed: true },
-        { label: '純資産合計', key: 'totalEquity', bold: true, bg: 'bg-sand-50', signed: true },
-        { label: '負債・純資産合計', key: 'totalLiabilitiesAndEquity', bold: true, bg: 'bg-earth-100/80', signed: true }
+        { label: '流動資産（現預金・売掛金）', key: 'cash', color: 'text-sky-900 font-semibold' },
+        { label: '固定資産：土地（非償却）', key: 'landAssets', color: 'text-emerald-800' },
+        { label: '固定資産：設備・農機（償却後帳簿価額）', key: 'equipAssets', color: 'text-emerald-900 font-semibold' },
+        { label: '総資産合計（左辺）', key: 'totalAssets', bold: true, bg: 'bg-sand-50', color: 'text-earth-950' },
+        { section: '【負債・純資産の部】' },
+        { label: '固定負債（長期借入金残高）', key: 'longTermDebt', color: 'text-amber-900 font-semibold' },
+        { label: '純資産：元入金（自己資金）', key: 'paidInCapital', color: 'text-gray-700' },
+        { label: '純資産：繰越利益剰余金（累積収支・生活費調整後）', key: 'retainedEarnings', signed: true },
+        { label: '純資産合計（自己資本）', key: 'totalEquity', bold: true, signed: true, bg: 'bg-indigo-50/50' },
+        { label: '負債・純資産合計（右辺）', key: 'totalLiabilitiesAndEquity', bold: true, bg: 'bg-earth-100/80', color: 'text-earth-950' }
       ];
 
       document.getElementById('balanceSheetTableBody').innerHTML = bsRows.map(r => {
         if (r.section) {
           return `
-            <tr class="bg-sand-100/70">
-              <td colspan="7" class="py-1.5 px-3 text-left text-xs font-bold text-earth-900">${r.section}</td>
+            <tr class="bg-sand-100/80">
+              <td colspan="7" class="py-1.5 px-3 text-left text-xs font-bold text-earth-800">${r.section}</td>
             </tr>
           `;
         }
-        const cells = sim.bsSeries.map((bsCol, i) => {
-          const val = bsCol[r.key];
-          let cls = 'text-gray-800';
-          if (r.signed) {
-            cls = val < 0 ? 'text-rose-600 font-bold' : (r.bold ? 'text-emerald-800 font-bold' : 'text-gray-800');
-          } else if (r.bold) {
-            cls = 'text-earth-900 font-bold';
-          }
-          const colHighlight = i === 0 ? 'bg-amber-50/30' : '';
-          return `<td class="py-2 px-3 ${cls} ${colHighlight}">${formatYen(val)}</td>`;
+        const cells = sim.bsSeries.map((b, i) => {
+          const val = b[r.key];
+          let cls = r.color || 'text-gray-800';
+          if (r.signed) cls = val < 0 ? 'text-rose-600 font-bold' : 'text-emerald-800 font-bold';
+          const bgCls = i === 0 ? 'bg-sand-50/70' : '';
+          return `<td class="py-2 px-3 ${cls} ${bgCls}">${formatYen(val)}</td>`;
         }).join('');
-
         return `
           <tr class="${r.bg || ''}">
             <td class="py-2 px-3 text-left ${r.bold ? 'font-bold text-gray-900' : 'text-gray-700'}">${r.label}</td>
@@ -3753,109 +3781,113 @@
     }
 
     // --- Tab 5 描画 ---
-    function generateRiskDiagnostics(sim) {
+    function buildRiskDiagnostics(sim) {
       const risks = [];
+      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
 
-      if (sim.lowestCash < 0) {
+      if (sim.lowestCash < 0 || sim.initialWorkingCapital < 0) {
         risks.push({
           level: 'high',
-          title: '💸 資金ショート（現預金マイナス）リスク',
-          desc: `${sim.lowestCashLabel}頃に現預金残高が ${formatYen(sim.lowestCash)}万円 まで落ち込みます。収穫前の資材費と毎月の生活費支払いが重なる端境期が原因です。`,
-          action: '公庫融資（青年等就農資金）の借入枠を最低でも不足額＋150万円増額するか、回転の早い葉物野菜・夏秋作を追加して入金時期を前倒ししてください。'
-        });
-      } else if (sim.lowestCash < 100) {
-        risks.push({
-          level: 'medium',
-          title: '⚠️ 運転資金バッファの薄さ（緊急予備費不足）',
-          desc: `最低現預金残高が ${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）と薄く、台風や病害虫による減収が起きると資金繰りが逼迫します。`,
-          action: '手元運転資金は常に月間支出（生活費＋固定費）の3〜4ヶ月分（約100〜150万円以上）を維持できるよう初期借入や初期投資を調整しましょう。'
+          category: '資金繰り・資金ショートリスク',
+          title: `1〜2年目に現預金マイナス発生（最低 ${formatYen(sim.lowestCash)}万円 / ${sim.lowestCashLabel}）`,
+          detail: `初期投資（土地${formatYen(sim.landPurchaseCost)}万＋設備${formatYen(sim.depreciableCapexNet)}万）や資材先行支出・農地賃借料・家族生活費に対し手元資金が不足する局面があります。`,
+          action: '青年等就農資金の増額・据置期間活用、初期設備/土地購入の中古・賃借切り替え、生活費の見直しを検討してください。'
         });
       } else {
         risks.push({
           level: 'low',
-          title: '✅ キャッシュフロー安全性（運転資金確保）',
-          desc: `1〜2年目の最低現預金残高は ${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）を維持しており、季節変動に耐えられる資金余力があります。`,
-          action: 'この水準を維持しつつ、就農1年目から農業経営収入保険への加入を検討すると天候リスクをさらに盤石にできます。'
+          category: '資金繰り・資金ショートリスク',
+          title: `1〜2年目も現預金残高プラスを維持（最低 ${formatYen(sim.lowestCash)}万円）`,
+          detail: `季節変動や農地賃借料・生活費控除後も手元資金がプラス圏を維持できる計画です。`,
+          action: '予期せぬ長雨・不作に備え、最低残高100万円以上のバッファを目標に予実管理を継続しましょう。'
         });
       }
 
-      const maxHours = Math.max(...sim.monthlyLaborHours);
-      const maxHourMonth = sim.monthlyLaborHours.indexOf(maxHours) + 1;
-      const totalCapacity = (appState.familyWorkers * 185) + (appState.fullTimeStaff * 185) + (appState.partTimeStaff * appState.partTimeHoursPerMonth);
-
-      if (maxHours > totalCapacity && maxHours > 0) {
-        risks.push({
-          level: 'high',
-          title: `⏱️ ${maxHourMonth}月の労働ピーク超過リスク（推定${Math.round(maxHours)}時間/月）`,
-          desc: `現在の家族・雇用人員の月間労働供給上限（約${Math.round(totalCapacity)}時間）を ${maxHourMonth}月に超過しています。収穫遅れによる品質低下・取りこぼしリスクがあります。`,
-          action: '①定植日を1〜2週間ずつずらして収穫期を分散する、②繁忙期パートの稼働時間・人数を増やす、③単価の高い品目に絞り面積を適正化してください。'
-        });
-      } else if (maxHours > totalCapacity * 0.8 && maxHours > 0) {
+      const peakMonths = [];
+      for (let m = 0; m < 12; m++) {
+        if (sim.monthlyHarvestSlotCount[m] >= 2 || sim.monthlyLaborHours[m] >= 320) {
+          peakMonths.push(`${m + 1}月(${Math.round(sim.monthlyLaborHours[m])}h)`);
+        }
+      }
+      if (peakMonths.length >= 2) {
         risks.push({
           level: 'medium',
-          title: `⏱️ ${maxHourMonth}月の収穫・管理集中注意（推定${Math.round(maxHours)}時間/月）`,
-          desc: `${maxHourMonth}月に作業が集中し稼働率80%を超えています。天候不順で作業日が減ると一気に過密スケジュールになります。`,
-          action: '収穫後の調製・袋詰め作業の外注化や、スポットパートの事前確保ルートを準備しておきましょう。'
+          category: '労働ピーク・作業集中リスク',
+          title: `${peakMonths.slice(0, 4).join('、')} に収穫・作業ピークが集中`,
+          detail: `複数作物の収穫期が重なると、調整・袋詰め・出荷作業が追いつかなくなり収穫ロスや過労につながります。`,
+          action: '播種・定植時期を2〜3週間ずらすリレー作付、繁忙期パート雇用の確保、選別・調製作業の省力化を導入してください。'
         });
       } else {
         risks.push({
           level: 'low',
-          title: '✅ 年間労働バランス・リレー分散',
-          desc: `月別最大労働時間は ${maxHourMonth}月の約${Math.round(maxHours)}時間で、現在の人員体制（上限約${Math.round(totalCapacity)}h）の範囲内に収まっています。`,
-          action: '冬場や端境期の空き時間を活用し、土づくり（堆肥散布・深耕）やEC顧客向けSNS発信・翌作資材準備を進めましょう。'
+          category: '労働ピーク・作業集中リスク',
+          title: '月別の作業負荷が比較的分散されています',
+          detail: '極端な作業集中が少なく、家族労働中心でも管理しやすい作付スケジュールです。',
+          action: '収穫最盛期の天候悪化（連続降雨）時のリカバリー手順をあらかじめ決めておきましょう。'
         });
       }
 
-      const cropIds = appState.plots.map(p => p.cropId);
-      const uniqueCrops = [...new Set(cropIds)];
-      const hasSolanaceae = uniqueCrops.some(id => ['tomato_large', 'mini_tomato', 'eggplant', 'green_pepper', 'potato'].includes(id));
-      const hasBrassicaceae = uniqueCrops.some(id => ['broccoli', 'cabbage', 'daikon', 'komatsuna'].includes(id));
+      const cropCounts = {};
+      appState.plots.forEach(p => { cropCounts[p.cropId] = (cropCounts[p.cropId] || 0) + 1; });
+      const uniqueCropCount = Object.keys(cropCounts).length;
+      const highRiskDiseaseCrops = appState.plots
+        .map(p => CROPS_DB.find(c => c.id === p.cropId))
+        .filter(c => c && (c.category.includes('果菜') || c.category.includes('根菜') || c.category.includes('果樹')));
 
-      if (uniqueCrops.length <= 1) {
+      if (uniqueCropCount <= 1) {
         risks.push({
           level: 'high',
-          title: '🌱 単一品目依存・連作障害リスク',
-          desc: '作付品目が1品目（または未登録）のため、価格暴落・病害虫発生・連作障害が起きた際に売上がゼロになるリスクがあります。',
-          action: '科の異なる作物（例：イネ科のスイートコーン × アブラナ科のブロッコリー・キャベツ等）を組み合わせた輪作・リレー作付を導入してください。'
+          category: '単一作物・連作障害・病害虫リスク',
+          title: '作付品目が1品目のみ（気象災害・病害虫・相場下落の影響を直撃）',
+          detail: `選択地域（${region.name}）では「${region.pests}」などのリスクがあります。単一作物だと不作や単価暴落時に売上が大きく落ち込みます。`,
+          action: '収穫時期や品目特性が異なる補完作物を1〜2品目組み合わせ、輪作間隔を守ってください。'
         });
-      } else if (hasSolanaceae || hasBrassicaceae) {
+      } else {
+        risks.push({
+          level: highRiskDiseaseCrops.length > 0 ? 'medium' : 'low',
+          category: '連作障害・病害虫・気候リスク',
+          title: `${uniqueCropCount}品目構成（${region.climate.split('・')[0]}の気象・病害虫対策が鍵）`,
+          detail: `警戒病害虫・獣害：${region.pests}。${highRiskDiseaseCrops.length > 0 ? '果菜・根菜類は接ぎ木苗・土壌消毒・輪作間隔の遵守が必須です。' : ''}`,
+          action: '土壌診断の実施、防虫ネット・灌水設備の整備、収入保険への加入を検討してください。'
+        });
+      }
+
+      const y1Map = appState.plots.length > 0 ? ensureCropYearlyChannels(appState.plots[0].cropId)[1] : { ja: 50, direct: 25, b2b: 15, ec: 10, tourism: 0 };
+      const maxChannelShare = Math.max(y1Map.ja, y1Map.direct, y1Map.b2b, y1Map.ec, y1Map.tourism);
+      if (maxChannelShare >= 75) {
         risks.push({
           level: 'medium',
-          title: '🐛 連作障害（ナス科・アブラナ科）＆特定病害虫警戒',
-          desc: `${hasSolanaceae ? 'ナス科（青枯病・半身萎凋病）' : ''}${hasSolanaceae && hasBrassicaceae ? 'および' : ''}${hasBrassicaceae ? 'アブラナ科（根こぶ病・コナガ）' : ''}が含まれています。`,
-          action: '接ぎ木苗の採用、土壌pH調整（石灰資材）、緑肥（ソルゴー等）の鋤き込み、およびフェロモントラップ・防虫ネットによる早期防除を徹底してください。'
+          category: '販路集中・単価変動リスク',
+          title: `1年目の特定販路依存度が ${maxChannelShare}% と高め`,
+          detail: '単一販路に偏ると、手数料改定や直売所来店客減、大口取引先の注文減の影響を受けやすくなります。',
+          action: '卸・直売・飲食店・産直ECを複線化し、3年目以降に高単価販路へ段階シフトする計画が有効です。'
         });
       } else {
         risks.push({
           level: 'low',
-          title: '✅ 品目分散・輪作ポートフォリオ',
-          desc: `${uniqueCrops.length}品目の組み合わせにより、気象変動や市場価格変動に対するリスク分散が図れています。`,
-          action: '各圃場ごとに作付履歴（施肥量・発生病害虫）を記録し、3〜4年周期の輪作表を運用してください。'
+          category: '販路分散・単価向上リスク',
+          title: '複数チャネルを組み合わせた分散型販路設計',
+          detail: '出荷先を分散しつつ、年次経過とともに直売・直販比率を高める設計になっています。',
+          action: '各チャネルの規格・荷姿・納品リードタイムの違いを整理し、欠品や梱包ミスを防ぎましょう。'
         });
       }
 
       const bs5 = sim.bsSeries[5];
-      const { equityRatio5, debtServiceYears } = sim.bsMetrics;
-      if (bs5.totalEquity < 0) {
+      if (bs5.totalEquity < 0 || sim.landPurchaseCost > appState.ownCapital * 0.8) {
         risks.push({
           level: 'high',
-          title: '⚖️ 貸借対照表（B/S）債務超過リスク',
-          desc: `5年目末の純資産が ${formatYen(bs5.totalEquity)}万円 となり、累積利益よりも生活費引き出し・償却負担が上回っています。`,
-          action: 'タブ4のB/Sを確認し、初期設備投資の圧縮、販路の直販・ECシフトによる粗利改善、または家計生活費の見直しを行ってください。'
-        });
-      } else if (equityRatio5 < 30 || debtServiceYears > 10) {
-        risks.push({
-          level: 'medium',
-          title: '⚖️ B/S財務体質（自己資本比率・借入償還年数）改善余地',
-          desc: `5年目末の自己資本比率は ${equityRatio5.toFixed(1)}%、債務償還年数は ${debtServiceYears.toFixed(1)}年 です。`,
-          action: '補助金活用による初期借入の圧縮と、3年目以降の利益蓄積（繰越利益剰余金増加）により自己資本比率30%超を目指しましょう。'
+          category: '土地取得・設備投資・B/S財務リスク',
+          title: `5年末純資産 ${formatYen(bs5.totalEquity)}万円 / 土地購入 ${formatYen(sim.landPurchaseCost)}万円・賃借 ${formatYen(sim.annualLandRent)}万円/年`,
+          detail: '農地購入費や設備投資・生活費のバランス次第で、自己資本比率や資金余力に負荷がかかります。',
+          action: '初期段階は農地バンクでの賃借を優先し、土地購入は収益安定後に段階検討することで財務安全性を高められます。'
         });
       } else {
         risks.push({
           level: 'low',
-          title: '✅ 健全なバランスシート（B/S）推移',
-          desc: `5年目末の自己資本比率は ${equityRatio5.toFixed(1)}%（純資産 ${formatYen(bs5.totalEquity)}万円）と着実に純資産が積み上がる計画です。`,
-          action: '公庫や自治体への営農計画説明時に、B/S推移と合わせて提示することで高い信用力を示せます。'
+          category: '土地取得・設備投資・B/S財務リスク',
+          title: `5年末 自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%（土地${formatYen(bs5.landAssets)}万・設備${formatYen(bs5.equipAssets)}万）`,
+          detail: '土地（非償却）と設備投資・借入返済のバランスが比較的良好に推移しています。',
+          action: '耐用年数を迎える農機・ハウス被覆の更新積立を計画的に行いましょう。'
         });
       }
 
@@ -3863,23 +3895,28 @@
     }
 
     function renderTab5SummaryAndRisks(sim) {
-      const risks = generateRiskDiagnostics(sim);
+      const risks = buildRiskDiagnostics(sim);
       document.getElementById('riskDiagnosisGrid').innerHTML = risks.map(r => {
         const badge = r.level === 'high'
-          ? '<span class="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold">対策必須</span>'
+          ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">高リスク・要対策</span>'
           : r.level === 'medium'
-            ? '<span class="px-2 py-0.5 rounded bg-amber-500 text-earth-950 text-[10px] font-bold">要注意</span>'
-            : '<span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">良好</span>';
-        const border = r.level === 'high' ? 'border-rose-300 bg-rose-50/40' : r.level === 'medium' ? 'border-amber-300 bg-amber-50/40' : 'border-emerald-200 bg-emerald-50/30';
+            ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">中リスク・注意</span>'
+            : '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">良好・維持</span>';
+        const borderCls = r.level === 'high' ? 'border-rose-200 bg-rose-50/30' : r.level === 'medium' ? 'border-amber-200 bg-amber-50/30' : 'border-sand-200 bg-white';
+
         return `
-          <div class="rounded-2xl border p-4 space-y-2 ${border}">
-            <div class="flex items-start justify-between gap-2">
-              <h4 class="font-bold text-xs sm:text-sm text-gray-900 leading-snug">${r.title}</h4>
-              ${badge}
+          <div class="rounded-2xl border ${borderCls} p-4 flex flex-col justify-between space-y-3 shadow-2xs">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-[11px] font-bold text-earth-700">${r.category}</span>
+                ${badge}
+              </div>
+              <h4 class="text-sm font-bold text-gray-900 leading-snug">${r.title}</h4>
+              <p class="text-xs text-gray-600 leading-relaxed">${r.detail}</p>
             </div>
-            <p class="text-xs text-gray-700 leading-relaxed">${r.desc}</p>
-            <div class="pt-2 border-t border-gray-200/80 text-xs text-earth-900">
-              <span class="font-bold">💡 推奨アクション：</span>${r.action}
+            <div class="p-2.5 rounded-xl bg-white/90 border border-sand-200 text-xs">
+              <span class="font-bold text-earth-800">💡 改善アクション：</span>
+              <span class="text-gray-700">${r.action}</span>
             </div>
           </div>
         `;
@@ -3892,134 +3929,124 @@
       const bs0 = sim.bsSeries[0];
       const bs5 = sim.bsSeries[5];
 
-      const plotsSummaryRows = appState.plots.length === 0
-        ? `<tr><td colspan="6" class="py-3 px-2.5 text-center text-gray-500">作付スロット未登録</td></tr>`
-        : appState.plots.map(p => {
-            const crop = CROPS_DB.find(c => c.id === p.cropId) || CROPS_DB[0];
-            const env = ENVIRONMENTS_DB.find(e => e.id === p.envId) || ENVIRONMENTS_DB[0];
-            const m1 = (sim.cropYearlyMetrics[p.cropId] && sim.cropYearlyMetrics[p.cropId][1]) || { priceMult: 1 };
-            const m5 = (sim.cropYearlyMetrics[p.cropId] && sim.cropYearlyMetrics[p.cropId][5]) || { priceMult: 1 };
-            return `
-              <tr class="border-b border-gray-200">
-                <td class="py-2 px-2.5 font-medium">${escapeHtml(p.plotName)}</td>
-                <td class="py-2 px-2.5">${env.name}</td>
-                <td class="py-2 px-2.5 font-bold text-earth-900">${crop.name.split('（')[0]}</td>
-                <td class="py-2 px-2.5 text-right">${Math.round(p.area10a * 10)} a</td>
-                <td class="py-2 px-2.5 text-center">${p.plantMonth}月定植 / ${p.harvestStart}〜${p.harvestEnd}月収穫</td>
-                <td class="py-2 px-2.5 text-right">${Math.round(p.pricePerKg * m1.priceMult)}→${Math.round(p.pricePerKg * m5.priceMult)}円/kg</td>
-              </tr>
-            `;
-          }).join('');
+      const plotSummaryList = appState.plots.length > 0
+        ? appState.plots.map((slot, i) => {
+            const crop = CROPS_DB.find(c => c.id === slot.cropId) || CROPS_DB[0];
+            const env = ENVIRONMENTS_DB.find(e => e.id === slot.envId) || ENVIRONMENTS_DB[0];
+            return `<li class="text-xs text-gray-700">• <strong>${escapeHtml(slot.plotName)}</strong>（${Math.round(slot.area10a * 10)}a / ${env.name}）：<strong>${crop.name.split('（')[0]}</strong>（${slot.plantMonth}月定植 → ${slot.harvestStart}〜${slot.harvestEnd}月収穫 / 目標${slot.yield10a}kg/10a・${slot.pricePerKg}円/kg・設備${slot.customCapex}万円）</li>`;
+          }).join('')
+        : '<li class="text-xs text-gray-500">作付スロット未登録</li>';
 
       document.getElementById('businessPlanSummaryBody').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="p-4 rounded-xl bg-sand-50 border border-sand-200 space-y-1.5">
-            <h4 class="font-bold text-earth-900 text-xs uppercase tracking-wider border-b border-sand-200 pb-1">1. 営農拠点・経営体制・生活費</h4>
-            <div class="text-xs"><span class="text-gray-500">就農エリア：</span><strong>${region.name}</strong></div>
-            <div class="text-xs"><span class="text-gray-500">経営面積：</span><strong>実面積 ${Math.round(sim.totalArea10a * 10)}a</strong>（露地 ${Math.round(sim.openArea10a * 10)}a / ハウス ${Math.round(sim.houseArea10a * 10)}a・延べ作付 ${Math.round(sim.totalCroppedArea10a * 10)}a）</div>
-            <div class="text-xs"><span class="text-gray-500">労働体制：</span>${appState.householdSize}人世帯（家族専従 ${appState.familyWorkers}人 ＋ 常勤 ${appState.fullTimeStaff}人 ＋ パート ${appState.partTimeStaff}人）</div>
-            <div class="text-xs"><span class="text-gray-500">家計生活費：</span>月額 <strong>${appState.monthlyLivingCost}万円</strong>（年額 ${appState.monthlyLivingCost * 12}万円・年上昇率 ${appState.livingCostGrowthRate}%）</div>
+            <h4 class="text-xs font-bold text-earth-800 uppercase tracking-wider">1. 就農地域・経営面積・体制</h4>
+            <p class="text-xs text-gray-800"><strong>就農予定地：</strong>${region.name}</p>
+            <p class="text-xs text-gray-800"><strong>実経営面積：</strong>${Math.round(sim.totalArea10a * 10)}a（${(sim.totalArea10a * 0.1).toFixed(2)}ha）／露地${Math.round(sim.openArea10a * 10)}a・施設${Math.round(sim.houseArea10a * 10)}a（延べ作付 ${Math.round(sim.totalCroppedArea10a * 10)}a）</p>
+            <p class="text-xs text-gray-800"><strong>労働体制：</strong>${appState.householdSize}人世帯・家族専従${appState.familyWorkers}名／常勤${appState.fullTimeStaff}名・パート${appState.partTimeStaff}名</p>
+            <p class="text-xs text-gray-800"><strong>家族生活費：</strong>月${formatYen(appState.monthlyLivingCost)}万円（1年目年${formatYen(y1.living)}万円／年率${appState.livingCostGrowthRate || 0}%）</p>
           </div>
 
           <div class="p-4 rounded-xl bg-sand-50 border border-sand-200 space-y-1.5">
-            <h4 class="font-bold text-earth-900 text-xs uppercase tracking-wider border-b border-sand-200 pb-1">2. 初期投資・資金調達計画</h4>
-            <div class="text-xs"><span class="text-gray-500">初期投資総額：</span><strong>${formatYen(sim.totalCapex)}万円</strong>（総投資 ${formatYen(sim.grossCapex)}万 − 設備補助 ${formatYen(sim.capexSubsidyAmount)}万）</div>
-            <div class="text-xs"><span class="text-gray-500">資金調達内訳：</span>自己資金 <strong>${formatYen(appState.ownCapital)}万円</strong> ＋ 公庫無利子融資 <strong>${formatYen(appState.jfcLoanAmount)}万円</strong> ＋ 一般融資 <strong>${formatYen(appState.genLoanAmount)}万円</strong></div>
-            <div class="text-xs"><span class="text-gray-500">開業時運転資金：</span><strong class="${sim.initialWorkingCapital >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${formatYen(sim.initialWorkingCapital)}万円</strong></div>
-            <div class="text-xs"><span class="text-gray-500">就農補助金：</span>${appState.subsidyEnabled ? `経営開始資金 年150万円 × ${appState.subsidyYears}年間（計${150 * appState.subsidyYears}万円）` : '利用なし'}</div>
+            <h4 class="text-xs font-bold text-earth-800 uppercase tracking-wider">2. 土地代・設備投資・資金調達・B/Sサマリー</h4>
+            <p class="text-xs text-gray-800"><strong>土地代・賃借料：</strong>土地購入費 ${formatYen(sim.landPurchaseCost)}万円（非償却固定資産）／年間農地賃借料 ${formatYen(sim.annualLandRent)}万円/年</p>
+            <p class="text-xs text-gray-800"><strong>初期投資額：</strong>実質総額 ${formatYen(sim.totalCapex)}万円（土地${formatYen(sim.landPurchaseCost)}万＋償却設備${formatYen(sim.depreciableCapexNet)}万／補助金控除${formatYen(sim.capexSubsidyAmount)}万）</p>
+            <p class="text-xs text-gray-800"><strong>資金調達：</strong>自己資金 ${formatYen(appState.ownCapital)}万円＋借入 ${formatYen(sim.totalLoanAmount)}万円（開業時運転資金 ${formatYen(sim.initialWorkingCapital)}万円）</p>
+            <p class="text-xs text-gray-800"><strong>B/S（開業時→5年目末）：</strong>総資産 ${formatYen(bs0.totalAssets)}万→${formatYen(bs5.totalAssets)}万／純資産 ${formatYen(bs0.totalEquity)}万→${formatYen(bs5.totalEquity)}万（自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%）</p>
           </div>
         </div>
 
-        <div>
-          <h4 class="font-bold text-earth-900 text-xs uppercase tracking-wider mb-2">3. 圃場別リレー作付・年次販路単価計画</h4>
-          <div class="overflow-x-auto border border-gray-200 rounded-xl">
-            <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-earth-800 text-white">
-                <tr>
-                  <th class="py-2 px-2.5">圃場名</th>
-                  <th class="py-2 px-2.5">施設</th>
-                  <th class="py-2 px-2.5">栽培品目</th>
-                  <th class="py-2 px-2.5 text-right">面積</th>
-                  <th class="py-2 px-2.5 text-center">作型スケジュール</th>
-                  <th class="py-2 px-2.5 text-right">実効単価(1→5年目)</th>
-                </tr>
-              </thead>
-              <tbody>${plotsSummaryRows}</tbody>
-            </table>
-          </div>
+        <div class="p-4 rounded-xl bg-white border border-sand-200 space-y-2">
+          <h4 class="text-xs font-bold text-earth-800 uppercase tracking-wider">3. 圃場別作付・リレー計画＆販路・販促方針</h4>
+          <ul class="space-y-1">${plotSummaryList}</ul>
+          <p class="text-xs text-gray-700 pt-1"><strong>販促・ブランド戦略：</strong>初年度ブランド費 ${formatYen(appState.initialBrandingCost)}万円／年間販促予算 ${formatYen(appState.annualPromoCost)}万円／重点施策 ${appState.selectedPromoTactics.length}件選択</p>
         </div>
 
-        <div>
-          <h4 class="font-bold text-earth-900 text-xs uppercase tracking-wider mb-2">4. 5ヵ年 損益・キャッシュフロー・貸借対照表（B/S）目標推移</h4>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div class="p-3 rounded-xl bg-earth-50 border border-earth-200">
-              <div class="text-gray-500">1年目 売上 / 営業利益</div>
-              <div class="font-bold text-sm text-earth-900 mt-1">${formatYen(y1.sales)}万 / ${formatYen(y1.operatingProfit)}万</div>
-            </div>
-            <div class="p-3 rounded-xl bg-earth-50 border border-earth-200">
-              <div class="text-gray-500">3年目 売上 / 営業利益</div>
-              <div class="font-bold text-sm text-earth-900 mt-1">${formatYen(y3.sales)}万 / ${formatYen(y3.operatingProfit)}万</div>
-            </div>
-            <div class="p-3 rounded-xl bg-earth-50 border border-earth-200">
-              <div class="text-gray-500">5年目 売上 / 営業利益</div>
-              <div class="font-bold text-sm text-emerald-800 mt-1">${formatYen(y5.sales)}万 / ${formatYen(y5.operatingProfit)}万</div>
-            </div>
-            <div class="p-3 rounded-xl bg-earth-50 border border-earth-200">
-              <div class="text-gray-500">5年目末 純資産 / 自己資本比率</div>
-              <div class="font-bold text-sm ${bs5.totalEquity >= 0 ? 'text-emerald-800' : 'text-rose-600'} mt-1">${formatYen(bs5.totalEquity)}万 (${sim.bsMetrics.equityRatio5.toFixed(1)}%)</div>
-            </div>
-          </div>
-          <div class="mt-2 text-xs text-gray-600">
-            ※開業時総資産: ${formatYen(bs0.totalAssets)}万円 → 5年目末総資産: ${formatYen(bs5.totalAssets)}万円（5年目末借入金残高: ${formatYen(bs5.longTermDebt)}万円 / 期末現預金残高: ${formatYen(y5.endingCash)}万円）
-          </div>
+        <div class="overflow-x-auto">
+          <h4 class="text-xs font-bold text-earth-800 uppercase tracking-wider mb-2">4. 5ヵ年 主要収支・キャッシュフロー・B/S推移表（単位：万円）</h4>
+          <table class="w-full text-xs text-right border-collapse min-w-[600px]">
+            <thead>
+              <tr class="bg-earth-800 text-white">
+                <th class="py-2 px-3 text-left">指標</th>
+                <th class="py-2 px-3">1年目</th>
+                <th class="py-2 px-3">2年目</th>
+                <th class="py-2 px-3">3年目</th>
+                <th class="py-2 px-3">4年目</th>
+                <th class="py-2 px-3">5年目</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-sand-200 border border-sand-200">
+              <tr>
+                <td class="py-2 px-3 text-left font-semibold">売上高</td>
+                ${sim.years.map(y => `<td class="py-2 px-3 font-bold text-earth-900">${formatYen(y.sales)}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="py-2 px-3 text-left font-semibold">営業利益</td>
+                ${sim.years.map(y => `<td class="py-2 px-3 font-bold ${y.operatingProfit >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${formatYen(y.operatingProfit)}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="py-2 px-3 text-left font-semibold">家族生活費控除後CF</td>
+                ${sim.years.map(y => `<td class="py-2 px-3 font-bold ${y.netSurplusAfterLiving >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${formatYen(y.netSurplusAfterLiving)}</td>`).join('')}
+              </tr>
+              <tr class="bg-sand-50">
+                <td class="py-2 px-3 text-left font-semibold">期末現預金残高</td>
+                ${sim.years.map(y => `<td class="py-2 px-3 font-bold ${y.endingCash >= 0 ? 'text-sky-800' : 'text-rose-600'}">${formatYen(y.endingCash)}</td>`).join('')}
+              </tr>
+              <tr>
+                <td class="py-2 px-3 text-left font-semibold">期末純資産（B/S）</td>
+                ${[1,2,3,4,5].map(idx => `<td class="py-2 px-3 font-bold ${sim.bsSeries[idx].totalEquity >= 0 ? 'text-indigo-800' : 'text-rose-600'}">${formatYen(sim.bsSeries[idx].totalEquity)}</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4 rounded-xl bg-earth-50 border border-earth-200 text-xs text-earth-950 leading-relaxed">
+          <strong>📌 総合所見：</strong>
+          1年目売上 <strong>${formatYen(y1.sales)}万円</strong>・営業利益 <strong>${formatYen(y1.operatingProfit)}万円</strong> からスタートし、3年目に売上 <strong>${formatYen(y3.sales)}万円</strong>、5年目に売上 <strong>${formatYen(y5.sales)}万円</strong>・営業利益 <strong>${formatYen(y5.operatingProfit)}万円</strong>・5年末純資産 <strong>${formatYen(bs5.totalEquity)}万円</strong> を目指す計画です。初期投資回収目安は <strong>${sim.paybackYear ? sim.paybackYear + '年' : '5年超'}</strong>、1〜2年目最低現預金残高は <strong>${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）</strong> です。
         </div>
       `;
     }
 
-    function copyBusinessPlanText() {
-      if (!latestSimulation) return;
-      const sim = latestSimulation;
+    function buildBusinessPlanPlainText(sim) {
       const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
       const y1 = sim.years[0];
       const y5 = sim.years[4];
       const bs5 = sim.bsSeries[5];
-
       const lines = [
-        '【新規就農 営農計画・収支・B/Sサマリー（Agri-Launchpad出力）】',
-        `■ 就農エリア: ${region.name}`,
-        `■ 経営面積: 実面積 ${Math.round(sim.totalArea10a * 10)}a（露地 ${Math.round(sim.openArea10a * 10)}a / ハウス ${Math.round(sim.houseArea10a * 10)}a / 延べ作付 ${Math.round(sim.totalCroppedArea10a * 10)}a）`,
-        `■ 経営体制: ${appState.householdSize}人世帯（家族専従 ${appState.familyWorkers}人 / 常勤 ${appState.fullTimeStaff}人 / パート ${appState.partTimeStaff}人）`,
-        `■ 家計生活費: 月額 ${appState.monthlyLivingCost}万円（年額 ${appState.monthlyLivingCost * 12}万円・上昇率 ${appState.livingCostGrowthRate}%）`,
-        `■ 初期投資・調達: 実質初期投資 ${formatYen(sim.totalCapex)}万円 / 自己資金 ${formatYen(appState.ownCapital)}万円 / 公庫融資 ${formatYen(appState.jfcLoanAmount)}万円 / 一般融資 ${formatYen(appState.genLoanAmount)}万円`,
-        '■ 作付品目:',
-        ...appState.plots.map(p => {
-          const c = CROPS_DB.find(x => x.id === p.cropId);
-          return `  - ${p.plotName}: ${c ? c.name : ''} (${Math.round(p.area10a * 10)}a, ${p.plantMonth}月定植, ${p.harvestStart}〜${p.harvestEnd}月収穫)`;
-        }),
-        '■ 5ヵ年収支・B/S予測:',
-        `  - 1年目: 売上 ${formatYen(y1.sales)}万円 / 営業利益 ${formatYen(y1.operatingProfit)}万円 / 期末現預金 ${formatYen(y1.endingCash)}万円`,
-        `  - 5年目: 売上 ${formatYen(y5.sales)}万円 / 営業利益 ${formatYen(y5.operatingProfit)}万円 / 期末現預金 ${formatYen(y5.endingCash)}万円`,
-        `  - 5年目末B/S: 総資産 ${formatYen(bs5.totalAssets)}万円 / 借入残高 ${formatYen(bs5.longTermDebt)}万円 / 純資産 ${formatYen(bs5.totalEquity)}万円（自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%）`
+        '【Agri-Launchpad 新規就農 事業計画サマリー】',
+        `就農予定地: ${region.name}`,
+        `実経営面積: ${Math.round(sim.totalArea10a * 10)}a (${(sim.totalArea10a * 0.1).toFixed(2)}ha) / 延べ作付: ${Math.round(sim.totalCroppedArea10a * 10)}a`,
+        `体制: ${appState.householdSize}人世帯・家族専従${appState.familyWorkers}名・常勤${appState.fullTimeStaff}名・パート${appState.partTimeStaff}名 / 生活費月${appState.monthlyLivingCost}万円`,
+        `土地代・賃借料: 購入費${formatYen(sim.landPurchaseCost)}万円 / 年間賃借料${formatYen(sim.annualLandRent)}万円`,
+        `実質初期投資: ${formatYen(sim.totalCapex)}万円 / 開業時運転資金: ${formatYen(sim.initialWorkingCapital)}万円`,
+        `1年目: 売上${formatYen(y1.sales)}万円 / 営業利益${formatYen(y1.operatingProfit)}万円 / 生活費控除後CF${formatYen(y1.netSurplusAfterLiving)}万円`,
+        `5年目: 売上${formatYen(y5.sales)}万円 / 営業利益${formatYen(y5.operatingProfit)}万円 / 期末現預金${formatYen(y5.endingCash)}万円 / 5年末純資産${formatYen(bs5.totalEquity)}万円 (自己資本比率${sim.bsMetrics.equityRatio5.toFixed(1)}%)`,
+        `1-2年目最低現預金残高: ${formatYen(sim.lowestCash)}万円 (${sim.lowestCashLabel})`
       ];
+      return lines.join('\n');
+    }
 
-      const text = lines.join('\n');
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
+    function copyBusinessPlanText() {
+      if (!latestSimulation) return;
+      const text = buildBusinessPlanPlainText(latestSimulation);
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
       try {
         document.execCommand('copy');
         showToast('事業計画サマリーをクリップボードにコピーしました');
       } catch (e) {
         showToast('コピーに失敗しました');
+      } finally {
+        document.body.removeChild(ta);
       }
-      document.body.removeChild(textarea);
     }
 
     // =========================================================================
-    // 7. Gemini AI経営壁打ちドロワー（models/gemini-3.8-flash）
+    // 7. Gemini AI壁打ちドロワー（models/gemini-3.8-flash・ローカルキー管理）
     // =========================================================================
 
     function toggleAiDrawer() {
@@ -4027,8 +4054,8 @@
       const backdrop = document.getElementById('aiDrawerBackdrop');
       const isClosed = drawer.classList.contains('translate-x-full');
       if (isClosed) {
-        drawer.classList.remove('translate-x-full');
         backdrop.classList.remove('hidden');
+        drawer.classList.remove('translate-x-full');
       } else {
         drawer.classList.add('translate-x-full');
         backdrop.classList.add('hidden');
@@ -4036,8 +4063,7 @@
     }
 
     function toggleApiKeyInput() {
-      const wrap = document.getElementById('apiKeyInputWrapper');
-      wrap.classList.toggle('hidden');
+      document.getElementById('apiKeyInputWrapper').classList.toggle('hidden');
     }
 
     function loadApiKeyFromStorage() {
@@ -4051,15 +4077,18 @@
     function saveApiKey() {
       const key = document.getElementById('geminiApiKeyInput').value.trim();
       try {
-        localStorage.setItem(API_KEY_STORAGE, key);
-        updateApiKeyBadge(key);
-        showToast(key ? 'Gemini APIキーをブラウザに保存しました（JSON保存には出力されません）' : 'APIキーをクリアしました');
+        if (key) localStorage.setItem(API_KEY_STORAGE, key);
+        else localStorage.removeItem(API_KEY_STORAGE);
       } catch (e) {}
+      updateApiKeyBadge(key);
+      if (key) showToast('Gemini APIキーをブラウザに保存しました');
     }
 
     function clearApiKey() {
       document.getElementById('geminiApiKeyInput').value = '';
-      saveApiKey();
+      try { localStorage.removeItem(API_KEY_STORAGE); } catch (e) {}
+      updateApiKeyBadge('');
+      showToast('APIキーを消去しました');
     }
 
     function updateApiKeyBadge(key) {
@@ -4073,57 +4102,20 @@
       }
     }
 
-    function buildLiveSystemPrompt() {
-      const sim = latestSimulation || calculateFullSimulation();
-      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
-      const risks = generateRiskDiagnostics(sim);
-
-      const plotsText = appState.plots.map(p => {
-        const c = CROPS_DB.find(x => x.id === p.cropId);
-        const e = ENVIRONMENTS_DB.find(x => x.id === p.envId);
-        const yMap = ensureCropYearlyChannels(p.cropId);
-        const y1Ch = yMap[1];
-        const y5Ch = yMap[5];
-        return `・${p.plotName} [${e ? e.name : ''}]：${c ? c.name : ''} / ${Math.round(p.area10a * 10)}a / 定植${p.plantMonth}月・収穫${p.harvestStart}〜${p.harvestEnd}月 / 基準単収${p.yield10a}kg / 基準単価${p.pricePerKg}円 / 区画投資${p.customCapex}万円 / 1年目販路(JA${y1Ch.ja}%,直売${y1Ch.direct}%,飲食${y1Ch.b2b}%,EC${y1Ch.ec}%,観光${y1Ch.tourism}%) → 5年目販路(JA${y5Ch.ja}%,直売${y5Ch.direct}%,飲食${y5Ch.b2b}%,EC${y5Ch.ec}%,観光${y5Ch.tourism}%)`;
-      }).join('\n');
-
-      const yearsText = sim.years.map(y =>
-        `${y.year}年目: 売上${formatYen(y.sales)}万 / 営業利益${formatYen(y.operatingProfit)}万 / 生活費控除後CF${formatYen(y.netSurplusAfterLiving)}万 / 期末現預金${formatYen(y.endingCash)}万`
-      ).join('\n');
-
-      const bs0 = sim.bsSeries[0];
-      const bs5 = sim.bsSeries[5];
-      const bsText = `開業時B/S: 総資産${formatYen(bs0.totalAssets)}万（現預金${formatYen(bs0.cash)}万・固定資産${formatYen(bs0.fixedAssets)}万）/ 借入${formatYen(bs0.longTermDebt)}万 / 純資産${formatYen(bs0.totalEquity)}万（自己資本比率${sim.bsMetrics.equityRatio0.toFixed(1)}%）\n5年目末B/S: 総資産${formatYen(bs5.totalAssets)}万（流動資産${formatYen(bs5.cash)}万・固定資産${formatYen(bs5.fixedAssets)}万）/ 借入残高${formatYen(bs5.longTermDebt)}万 / 純資産${formatYen(bs5.totalEquity)}万（自己資本比率${sim.bsMetrics.equityRatio5.toFixed(1)}%・債務償還年数${sim.bsMetrics.debtServiceYears.toFixed(1)}年）`;
-
-      return `あなたは日本の脱サラ新規就農者を支援する超実践的な農業経営コンサルタント兼農業普及指導員です。
-日本政策金融公庫（青年等就農資金）の融資審査基準、農地中間管理機構、各地の気候・病害虫・連作障害・作業労働時間、およびB/S（貸借対照表）・月次資金繰りに精通しています。
-ユーザーの現在のリアルタイム入力データとシミュレーション結果は以下の通りです。必ずこの具体的数値と設定に基づいて回答してください。
-
-【現在のユーザー営農シミュレーション状況】
-・就農エリア：${region.name}（気候: ${region.climate} / 冬期リスク: ${region.winterFreezeRisk}）
-・準備度スコア：${sim.readinessScore}%
-・経営面積：実面積 ${Math.round(sim.totalArea10a * 10)}a（露地 ${Math.round(sim.openArea10a * 10)}a / ハウス ${Math.round(sim.houseArea10a * 10)}a / 延べ作付 ${Math.round(sim.totalCroppedArea10a * 10)}a）
-・経営体制・家計：${appState.householdSize}人世帯（家族専従 ${appState.familyWorkers}人 / 常勤 ${appState.fullTimeStaff}人 / パート ${appState.partTimeStaff}人 / 月間生活費 ${appState.monthlyLivingCost}万円・上昇率${appState.livingCostGrowthRate}%）
-・初期投資・資金：実質初期投資 ${formatYen(sim.totalCapex)}万円 / 自己資金 ${formatYen(appState.ownCapital)}万円 / 公庫無利子融資 ${formatYen(appState.jfcLoanAmount)}万円 / 一般融資 ${formatYen(appState.genLoanAmount)}万円 / 開業時運転資金 ${formatYen(sim.initialWorkingCapital)}万円 / 設備償却年数 ${appState.depreciationYears}年
-・作付スロット・年次販路計画：
-${plotsText || '（まだ作付スロットは登録されていません）'}
-・5ヵ年P/L・CF推移：
-${yearsText}
-・貸借対照表（B/S）推移：
-${bsText}
-・1〜2年目最低現預金残高：${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）
-・検出されているリスク：
-${risks.map(r => `・${r.title}: ${r.desc}`).join('\n')}
-
-回答は実践的で温かみがありつつも、経営・財務面（P/L・月次CF・B/S）はプロの視点でシビアかつ具体的に改善アクション（数値例・作型変更案・融資対策・栽培上の急所）を提示してください。`;
+    function handleAiTextareaKeydown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('aiSendBtn').click();
+      }
     }
 
     function askAiAboutRisks() {
+      if (!latestSimulation) return;
+      const risks = buildRiskDiagnostics(latestSimulation);
+      const summary = risks.map(r => `・[${r.category}] ${r.title}`).join('\n');
       const drawer = document.getElementById('aiDrawer');
-      if (drawer.classList.contains('translate-x-full')) {
-        toggleAiDrawer();
-      }
-      sendSuggestedPrompt('現在のシミュレーション結果（5ヵ年P/L・月次資金繰り・B/S自己資本比率・労働ピーク・検出されたリスク）を総合的に査定し、就農失敗を防ぐための最重要改善アクションを優先順位順に3つ教えてください。');
+      if (drawer.classList.contains('translate-x-full')) toggleAiDrawer();
+      sendSuggestedPrompt(`以下のリスク診断結果と現在の収支・土地代/賃借料・B/S計画を踏まえ、最優先で取り組むべき改善アクションを3つ具体的に提案してください：\n${summary}`);
     }
 
     function sendSuggestedPrompt(promptText) {
@@ -4131,11 +4123,45 @@ ${risks.map(r => `・${r.title}: ${r.desc}`).join('\n')}
       handleAiChatSubmit(new Event('submit'));
     }
 
-    function handleAiTextareaKeydown(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleAiChatSubmit(new Event('submit'));
-      }
+    function buildSystemPromptWithLiveContext() {
+      const sim = latestSimulation || calculateFullSimulation();
+      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
+      const plotDetails = appState.plots.map(p => {
+        const c = CROPS_DB.find(x => x.id === p.cropId);
+        const e = ENVIRONMENTS_DB.find(x => x.id === p.envId);
+        const yMap = ensureCropYearlyChannels(p.cropId);
+        return `- ${p.plotName}: ${c ? c.name : p.cropId} (${Math.round(p.area10a * 10)}a, ${e ? e.name : p.envId}, ${p.plantMonth}月定植→${p.harvestStart}〜${p.harvestEnd}月収穫, 収量${p.yield10a}kg/10a, 単価${p.pricePerKg}円/kg, 設備${p.customCapex}万) / 1年目販路[JA${yMap[1].ja}%,直売${yMap[1].direct}%,飲食${yMap[1].b2b}%,EC${yMap[1].ec}%,観光${yMap[1].tourism}%] -> 5年目販路[JA${yMap[5].ja}%,直売${yMap[5].direct}%,飲食${yMap[5].b2b}%,EC${yMap[5].ec}%,観光${yMap[5].tourism}%]`;
+      }).join('\n') || '（作付スロット未登録）';
+
+      const ySummary = sim.years.map(y =>
+        `${y.year}年目: 売上${Math.round(y.sales)}万 / 営利${Math.round(y.operatingProfit)}万 / 生活費${Math.round(y.living)}万 / 純CF${Math.round(y.netSurplusAfterLiving)}万 / 期末現預金${Math.round(y.endingCash)}万`
+      ).join('\n');
+
+      const bsSummary = sim.bsSeries.map(b =>
+        `${b.label}: 総資産${Math.round(b.totalAssets)}万(現金${Math.round(b.cash)}万/土地${Math.round(b.landAssets)}万/設備${Math.round(b.equipAssets)}万) / 負債${Math.round(b.longTermDebt)}万 / 純資産${Math.round(b.totalEquity)}万`
+      ).join('\n');
+
+      return `あなたは日本の新規就農・脱サラ農業経営に精通した実践的コンサルタントです。
+ユーザーの現在のシミュレーション数値を正確に踏まえ、具体的かつ温かみのある日本語で壁打ち・助言を行ってください。
+
+【現在の経営計画・シミュレーション数値】
+- 総合準備度スコア: ${sim.readinessScore}%
+- 就農予定地域: ${region.name}（気候: ${region.climate} / 収量係数 ×${region.yieldMult}）
+- 面積: 実面積${Math.round(sim.totalArea10a * 10)}a（露地${Math.round(sim.openArea10a * 10)}a・施設${Math.round(sim.houseArea10a * 10)}a）／延べ作付${Math.round(sim.totalCroppedArea10a * 10)}a
+- 体制・生活費・人件費: ${appState.householdSize}人世帯・家族専従${appState.familyWorkers}名・生活費月${appState.monthlyLivingCost}万円（年率${appState.livingCostGrowthRate || 0}%）／常勤${appState.fullTimeStaff}名・パート${appState.partTimeStaff}名
+- 土地代・賃借料: 農地購入費 ${Math.round(sim.landPurchaseCost)}万円（非償却固定資産）／年間農地賃借料 ${Math.round(sim.annualLandRent)}万円/年
+- 初期投資・調達: 実質初期投資 ${Math.round(sim.totalCapex)}万円（土地${Math.round(sim.landPurchaseCost)}万＋設備${Math.round(sim.depreciableCapexNet)}万）／自己資金 ${appState.ownCapital}万円／借入合計 ${sim.totalLoanAmount}万円（青年等就農資金 ${appState.jfcLoanAmount}万・一般融資 ${appState.genLoanAmount}万）／開業時運転資金 ${Math.round(sim.initialWorkingCapital)}万円
+- 1〜2年目最低現預金残高: ${Math.round(sim.lowestCash)}万円（${sim.lowestCashLabel}）
+- 5年目自己資本比率: ${sim.bsMetrics.equityRatio5.toFixed(1)}%
+
+【圃場・リレー作付・年次販路計画】
+${plotDetails}
+
+【5ヵ年 収支・キャッシュフロー推移】
+${ySummary}
+
+【バランスシート（B/S）推移】
+${bsSummary}`;
     }
 
     async function handleAiChatSubmit(e) {
@@ -4146,103 +4172,111 @@ ${risks.map(r => `・${r.title}: ${r.desc}`).join('\n')}
 
       const apiKey = (document.getElementById('geminiApiKeyInput').value || localStorage.getItem(API_KEY_STORAGE) || '').trim();
       if (!apiKey) {
-        appendChatMessage('assistant', '⚠️ 上部の「🔑 Gemini APIキー設定」欄にご自身のGemini APIキーを入力・保存してからメッセージを送信してください。');
+        appendChatBubble('assistant', '⚠️ Gemini APIキーが設定されていません。上部の「🔑 Gemini APIキー設定」欄にご自身のAPIキーを入力して「保存」を押してください。');
         return;
       }
 
       inputEl.value = '';
-      appendChatMessage('user', userText);
+      appendChatBubble('user', userText);
       chatHistory.push({ role: 'user', parts: [{ text: userText }] });
 
       const sendBtn = document.getElementById('aiSendBtn');
       sendBtn.disabled = true;
-      sendBtn.textContent = '思考中...';
-      const loadingId = appendChatMessage('assistant', '🌱 現在の営農データ・B/S・収支・作付リレーを分析しています...');
+      sendBtn.textContent = '...';
+      const typingId = appendTypingIndicator();
 
       try {
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-        const payload = {
-          systemInstruction: {
-            parts: [{ text: buildLiveSystemPrompt() }]
-          },
-          contents: chatHistory.slice(-10),
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048
-          }
-        };
-
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: buildSystemPromptWithLiveContext() }] },
+            contents: chatHistory,
+            generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+          })
         });
 
         const data = await response.json();
-        removeChatMessage(loadingId);
+        removeTypingIndicator(typingId);
 
         if (!response.ok) {
-          const errMsg = (data && data.error && data.error.message) ? data.error.message : `HTTPエラー (${response.status})`;
-          throw new Error(errMsg);
+          const errMsg = (data && data.error && data.error.message) ? data.error.message : `HTTP ${response.status}`;
+          appendChatBubble('assistant', `❌ APIエラーが発生しました: ${escapeHtml(errMsg)}`);
+          chatHistory.pop();
+        } else {
+          const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '（応答が空でした）';
+          chatHistory.push({ role: 'model', parts: [{ text: replyText }] });
+          appendChatBubble('assistant', replyText);
         }
-
-        const aiReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '回答を生成できませんでした。';
-        chatHistory.push({ role: 'model', parts: [{ text: aiReply }] });
-        appendChatMessage('assistant', aiReply);
-
       } catch (err) {
-        removeChatMessage(loadingId);
-        appendChatMessage('assistant', `❌ API通信エラーが発生しました：${err.message}\nAPIキーの有効性やネットワーク接続をご確認ください。`);
+        removeTypingIndicator(typingId);
+        chatHistory.pop();
+        appendChatBubble('assistant', `❌ 通信エラーが発生しました: ${escapeHtml(err.message || 'ネットワークを確認してください')}`);
       } finally {
         sendBtn.disabled = false;
         sendBtn.textContent = '送信';
       }
     }
 
-    function appendChatMessage(role, text) {
+    function appendChatBubble(role, text) {
       const container = document.getElementById('aiChatMessages');
-      const id = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
       const div = document.createElement('div');
-      div.id = id;
-
       if (role === 'user') {
-        div.className = 'ml-8 bg-earth-700 text-white rounded-2xl rounded-tr-none p-3 text-xs leading-relaxed shadow-xs whitespace-pre-wrap';
+        div.className = 'bg-earth-700 text-white rounded-2xl rounded-tr-none p-3 text-xs ml-8 shadow-xs whitespace-pre-wrap leading-relaxed';
         div.textContent = text;
       } else {
-        div.className = 'mr-4 bg-white border border-sand-200 text-gray-800 rounded-2xl rounded-tl-none p-3.5 text-xs leading-relaxed shadow-xs whitespace-pre-wrap';
-        div.innerHTML = formatSimpleMarkdown(text);
+        div.className = 'bg-white border border-sand-200 text-gray-800 rounded-2xl rounded-tl-none p-3.5 text-xs mr-4 shadow-xs leading-relaxed space-y-1';
+        div.innerHTML = formatAiMarkdownLite(text);
       }
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
 
+    function appendTypingIndicator() {
+      const container = document.getElementById('aiChatMessages');
+      const id = 'typing_' + Date.now();
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = 'bg-white border border-sand-200 text-gray-500 rounded-2xl rounded-tl-none px-3.5 py-2.5 text-xs mr-auto inline-flex items-center gap-1.5';
+      div.innerHTML = '<span class="animate-bounce">●</span><span class="animate-bounce" style="animation-delay:0.15s">●</span><span class="animate-bounce" style="animation-delay:0.3s">●</span><span class="ml-1">経営数値を分析中...</span>';
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
       return id;
     }
 
-    function removeChatMessage(id) {
+    function removeTypingIndicator(id) {
       const el = document.getElementById(id);
       if (el) el.remove();
     }
 
-    function formatSimpleMarkdown(str) {
-      let safe = escapeHtml(str);
-      safe = safe.replace(/\*\*(.+?)\*\*/g, '<strong class="text-earth-900 font-bold">$1</strong>');
-      return safe;
+    function formatAiMarkdownLite(raw) {
+      return escapeHtml(raw)
+        .replace(/\*\*(.+?)\*\*/g, '<strong class="text-earth-900 font-bold">$1</strong>')
+        .replace(/\n/g, '<br>');
     }
 
+    // =========================================================================
+    // 8. ユーティリティ
+    // =========================================================================
+
     function escapeHtml(str) {
-      return String(str || '')
+      if (typeof str !== 'string') return '';
+      return str
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
     }
 
+    let toastTimer = null;
     function showToast(msg) {
       const el = document.getElementById('toastNotification');
       el.textContent = msg;
       el.classList.remove('hidden');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
         el.classList.add('hidden');
       }, 3200);
     }

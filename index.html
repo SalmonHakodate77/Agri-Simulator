@@ -102,7 +102,7 @@
               </span>
             </div>
             <p class="text-[11px] text-earth-300 hidden md:block truncate">
-              リレー作付・年次別販路（1〜5年目）・月次資金繰り・バランスシート（B/S）・相場妥当性診断・AI壁打ち統合
+              リレー作付・年次別販路（1〜5年目）・月次資金繰り・視覚バランスシート（B/S）・相場妥当性診断・AI壁打ち統合
             </p>
           </div>
         </div>
@@ -147,7 +147,7 @@
           <div id="kpiAreaBreakdown" class="text-[10px] text-emerald-300 mt-0.5 truncate">露地: 0a / ハウス: 0a</div>
         </div>
 
-        <!-- KPI 3: 初期投資総額 -->
+        <!-- KPI 3: 初期投資総額＋運転資金 -->
         <div class="bg-earth-800/90 rounded-xl p-2 sm:p-2.5 border border-earth-700/80">
           <div class="text-[11px] text-earth-300">初期投資総額（設備・農機）</div>
           <div class="flex items-baseline gap-1 mt-0.5">
@@ -643,15 +643,15 @@
         </div>
       </div>
 
-      <!-- 予測貸借対照表（バランスシート：B/S）開業時〜5年目末 -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-sand-200 space-y-5">
+      <!-- 予測貸借対照表（バランスシート：B/S）視覚ブロック図＆数値表（開業時〜5年目末） -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-sand-200 space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 class="text-base sm:text-lg font-bold text-earth-900 flex items-center gap-2">
               <span>⚖️</span><span>予測貸借対照表（バランスシート：B/S）開業時〜5年目末</span>
             </h3>
             <p class="text-xs text-gray-500 mt-0.5">
-              日本政策金融公庫・金融機関の審査で重視される<strong>資産・負債・純資産のバランス</strong>を自動算出します（資産合計 ＝ 負債・純資産合計が常に完全一致）。
+              「左＝資産（流動・固定）」と「右＝負債・純資産」を積み上げブロックグラフで直感的に可視化しつつ、精密な勘定科目表と財務安全性指標を確認できます。
             </p>
           </div>
           <div class="flex items-center gap-3 bg-sand-100 px-3.5 py-2 rounded-xl border border-sand-200">
@@ -659,6 +659,31 @@
               設備平均耐用年数: <span id="depreciationYearsDisplay" class="text-earth-700 underline">7年</span>
             </label>
             <input type="range" id="depreciationYearsSlider" min="5" max="10" step="1" value="7" oninput="updateStateFromInputs()" class="w-24 sm:w-32 accent-earth-700 cursor-pointer" />
+          </div>
+        </div>
+
+        <!-- 視覚バランスシート（左右積み上げブロックグラフ＋5ヵ年ミニ比較カード） -->
+        <div class="rounded-2xl bg-sand-50/80 border border-sand-200 p-4 sm:p-5 space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-sm font-bold text-earth-900 flex items-center gap-1.5">
+                <span>🧱</span><span>視覚バランスシート（左右積み上げブロック図・4象限ブロック比較）</span>
+              </h4>
+              <p class="text-[11px] text-gray-500 mt-0.5">年次タブをクリックすると、その時点の「資産の柱（左）」と「負債＋純資産の柱（右）」の高さと内訳ブロックが切り替わります。</p>
+            </div>
+            <div id="bsYearSelectorButtons" class="flex flex-wrap gap-1 bg-white p-1 rounded-xl border border-sand-200 shadow-2xs"></div>
+          </div>
+
+          <!-- 選択年次の左右積み上げブロックグラフ本体 -->
+          <div id="bsVisualBlockStage" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch"></div>
+
+          <!-- 開業時〜5年目末の5ヵ年ミニ視覚ブロック推移 -->
+          <div class="pt-3 border-t border-sand-200">
+            <div class="text-xs font-bold text-earth-800 mb-2.5 flex items-center justify-between flex-wrap gap-1">
+              <span>📊 開業時〜5年目末 バランス推移ミニマップ（左：資産 / 右：負債・純資産）</span>
+              <span class="text-[11px] font-normal text-gray-500">クリックで上の詳細ブロックに反映</span>
+            </div>
+            <div id="bsMiniCardsGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5"></div>
           </div>
         </div>
 
@@ -1323,12 +1348,13 @@
     // 2. アプリケーション状態（State）管理
     // =========================================================================
 
-    const STORAGE_KEY = 'agri_launchpad_state_v3';
+    const STORAGE_KEY = 'agri_launchpad_state_v4';
     const API_KEY_STORAGE = 'agri_launchpad_gemini_key';
 
     let appState = getDefaultState();
     let currentTab = 1;
     let monthlySimYear = 1;
+    let selectedBsYearIdx = 5; // 0:開業時(0年目末), 1..5:1〜5年目末
     let latestSimulation = null;
     let chatHistory = [];
 
@@ -1483,7 +1509,7 @@
 
     function loadStateFromStorage() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('agri_launchpad_state_v3');
         if (saved) {
           const parsed = JSON.parse(saved);
           appState = { ...getDefaultState(), ...parsed };
@@ -1508,6 +1534,7 @@
 
     function loadSampleData() {
       appState = getDefaultState();
+      selectedBsYearIdx = 5;
       syncInputsFromState();
       recalculateAndRenderAll();
       showToast('標準モデル（北関東・スイートコーン＋ブロッコリー二毛作＆ミニトマト経営）を読み込みました');
@@ -1544,6 +1571,7 @@
           sweet_corn: createDefaultYearlyChannels({ ja: 40, direct: 30, b2b: 15, ec: 15, tourism: 0 })
         }
       };
+      selectedBsYearIdx = 5;
       syncInputsFromState();
       recalculateAndRenderAll();
       closeResetModal();
@@ -1563,6 +1591,7 @@
       if (tabNum === 4 && latestSimulation) {
         renderFiveYearChart(latestSimulation.years);
         renderMonthlyCashChart(latestSimulation.years[monthlySimYear - 1].months);
+        renderVisualBalanceSheet(latestSimulation.bsSeries);
       }
     }
 
@@ -2752,7 +2781,7 @@
       recalculateAndRenderAll();
     }
 
-    // --- Tab 4 描画（SVGチャート＋P/L・月次CF・B/Sテーブル） ---
+    // --- Tab 4 描画（SVGチャート＋P/L・月次CF・視覚ブロック＆数値B/S） ---
     function setMonthlySimYear(yearNum) {
       monthlySimYear = yearNum;
       document.getElementById('btnMonthYear1').className = yearNum === 1
@@ -2764,6 +2793,13 @@
 
       if (latestSimulation) {
         renderMonthlyCashTableAndChart(latestSimulation.years[monthlySimYear - 1].months);
+      }
+    }
+
+    function selectBsYear(idx) {
+      selectedBsYearIdx = Math.max(0, Math.min(5, idx));
+      if (latestSimulation) {
+        renderVisualBalanceSheet(latestSimulation.bsSeries);
       }
     }
 
@@ -3011,7 +3047,209 @@
       `;
     }
 
+    function renderVisualBalanceSheet(bsSeries) {
+      const btnWrap = document.getElementById('bsYearSelectorButtons');
+      const stageWrap = document.getElementById('bsVisualBlockStage');
+      const miniWrap = document.getElementById('bsMiniCardsGrid');
+      if (!btnWrap || !stageWrap || !miniWrap) return;
+
+      const idx = Math.max(0, Math.min(bsSeries.length - 1, selectedBsYearIdx));
+      const cur = bsSeries[idx];
+
+      btnWrap.innerHTML = bsSeries.map((item, i) => {
+        const active = i === idx;
+        return `
+          <button type="button" onclick="selectBsYear(${i})" class="px-2.5 py-1 rounded-lg text-xs font-bold transition ${active ? 'bg-earth-700 text-white shadow-2xs' : 'text-gray-700 hover:bg-sand-100'}">
+            ${i === 0 ? '開業時' : `${i}年目末`}
+          </button>
+        `;
+      }).join('');
+
+      // 柱の高さ正規化用（正の資産・負債+純資産の最大値基準）
+      const maxBarScale = Math.max(
+        1,
+        ...bsSeries.map(b => Math.max(b.totalAssets, b.totalLiabilitiesAndEquity, Math.abs(b.cash) + b.fixedAssets))
+      );
+
+      const posCash = Math.max(0, cur.cash);
+      const negCash = Math.min(0, cur.cash);
+      const assetTotalForPct = Math.max(1, posCash + cur.fixedAssets);
+      const cashPct = (posCash / assetTotalForPct) * 100;
+      const fixedPct = (cur.fixedAssets / assetTotalForPct) * 100;
+      const assetBarHeightPct = Math.min(100, Math.max(14, ((posCash + cur.fixedAssets) / maxBarScale) * 100));
+
+      const posEquity = Math.max(0, cur.totalEquity);
+      const negEquity = Math.min(0, cur.totalEquity);
+      const rightTotalForPct = Math.max(1, cur.longTermDebt + posEquity);
+      const debtPct = (cur.longTermDebt / rightTotalForPct) * 100;
+      const eqPct = (posEquity / rightTotalForPct) * 100;
+      const rightBarHeightPct = Math.min(100, Math.max(14, ((cur.longTermDebt + posEquity) / maxBarScale) * 100));
+
+      const eqRatio = cur.totalAssets > 0 ? (cur.totalEquity / cur.totalAssets) * 100 : 0;
+
+      stageWrap.innerHTML = `
+        <!-- 左側：資産の柱（流動資産＋固定資産） -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-sand-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-sand-200 pb-2 mb-3">
+              <div>
+                <span class="text-[11px] font-bold text-sky-700 uppercase">ASSETS（左の柱）</span>
+                <h5 class="text-sm font-bold text-earth-900">資産の部（${cur.label}）</h5>
+              </div>
+              <span class="text-base font-bold text-earth-900">${formatYen(cur.totalAssets)} 万円</span>
+            </div>
+
+            <div class="grid grid-cols-12 gap-3 items-end min-h-[210px]">
+              <!-- 積み上げブロック柱 -->
+              <div class="col-span-5 h-[200px] flex flex-col justify-end bg-sand-100/70 rounded-xl p-2 border border-dashed border-sand-300">
+                <div class="w-full flex flex-col rounded-lg overflow-hidden shadow-xs transition-all duration-300" style="height: ${assetBarHeightPct.toFixed(1)}%">
+                  <div style="height: ${cashPct.toFixed(1)}%" class="bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center px-1 text-center leading-tight" title="流動資産（現預金・売掛）: ${formatYen(cur.cash)}万円">
+                    ${cashPct >= 18 ? `流動<br>${Math.round(cashPct)}%` : ''}
+                  </div>
+                  <div style="height: ${fixedPct.toFixed(1)}%" class="bg-emerald-600 text-white text-[10px] font-bold flex items-center justify-center px-1 text-center leading-tight" title="固定資産（設備・農機）: ${formatYen(cur.fixedAssets)}万円">
+                    ${fixedPct >= 18 ? `固定<br>${Math.round(fixedPct)}%` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- ブロック内訳カード（左上：流動資産 / 左下：固定資産） -->
+              <div class="col-span-7 space-y-2.5 self-center">
+                <div class="p-2.5 rounded-xl bg-sky-50 border border-sky-200">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-sky-900">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-sky-500 inline-block"></span>流動資産（現預金等）</span>
+                    <span>${formatYen(cur.cash)} 万円</span>
+                  </div>
+                  <p class="text-[10px] text-sky-800/80 mt-0.5">日々の資材・生活費・返済に使える現金ベース資産</p>
+                </div>
+
+                <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-emerald-900">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-emerald-600 inline-block"></span>固定資産（設備・機械）</span>
+                    <span>${formatYen(cur.fixedAssets)} 万円</span>
+                  </div>
+                  <p class="text-[10px] text-emerald-800/80 mt-0.5">ハウス・農機・初期投資の減価償却後帳簿残高</p>
+                </div>
+
+                ${negCash < 0 ? `
+                  <div class="p-2 rounded-xl bg-rose-100 border border-rose-300 text-[11px] font-bold text-rose-800">
+                    ⚠️ 現預金マイナス状態（${formatYen(negCash)}万円）
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 中央：バランスインジケーター -->
+        <div class="lg:col-span-2 flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-white border border-sand-200 space-y-2">
+          <div class="text-xs font-bold text-earth-900 bg-earth-100 px-3 py-1 rounded-full">${cur.label}</div>
+          <div class="text-2xl">⚖️</div>
+          <div class="text-[11px] font-bold text-gray-700">貸借一致チェック</div>
+          <div class="text-[10px] px-2 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">
+            左 ${formatYen(cur.totalAssets)}万<br>= 右 ${formatYen(cur.totalLiabilitiesAndEquity)}万
+          </div>
+          <div class="w-full pt-1 border-t border-sand-200">
+            <div class="text-[10px] text-gray-500">自己資本比率</div>
+            <div class="text-sm font-bold ${eqRatio >= 30 ? 'text-emerald-700' : eqRatio >= 0 ? 'text-amber-600' : 'text-rose-600'}">${eqRatio.toFixed(1)}%</div>
+          </div>
+        </div>
+
+        <!-- 右側：負債＋純資産の柱（借入金＋元入金・利益剰余金） -->
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-sand-200 p-4 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-sand-200 pb-2 mb-3">
+              <div>
+                <span class="text-[11px] font-bold text-amber-700 uppercase">LIABILITIES & EQUITY（右の柱）</span>
+                <h5 class="text-sm font-bold text-earth-900">負債・純資産の部（${cur.label}）</h5>
+              </div>
+              <span class="text-base font-bold text-earth-900">${formatYen(cur.totalLiabilitiesAndEquity)} 万円</span>
+            </div>
+
+            <div class="grid grid-cols-12 gap-3 items-end min-h-[210px]">
+              <!-- 積み上げブロック柱 -->
+              <div class="col-span-5 h-[200px] flex flex-col justify-end bg-sand-100/70 rounded-xl p-2 border border-dashed border-sand-300">
+                <div class="w-full flex flex-col rounded-lg overflow-hidden shadow-xs transition-all duration-300" style="height: ${rightBarHeightPct.toFixed(1)}%">
+                  <div style="height: ${debtPct.toFixed(1)}%" class="bg-amber-500 text-earth-950 text-[10px] font-bold flex items-center justify-center px-1 text-center leading-tight" title="負債（借入金残高）: ${formatYen(cur.longTermDebt)}万円">
+                    ${debtPct >= 18 ? `借入<br>${Math.round(debtPct)}%` : ''}
+                  </div>
+                  <div style="height: ${eqPct.toFixed(1)}%" class="bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center px-1 text-center leading-tight" title="純資産（元入金＋利益剰余金）: ${formatYen(cur.totalEquity)}万円">
+                    ${eqPct >= 18 ? `自己資本<br>${Math.round(eqPct)}%` : ''}
+                  </div>
+                </div>
+              </div>
+
+              <!-- ブロック内訳カード（右上：負債 / 右下：純資産） -->
+              <div class="col-span-7 space-y-2.5 self-center">
+                <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-amber-950">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-amber-500 inline-block"></span>負債（借入金残高）</span>
+                    <span>${formatYen(cur.longTermDebt)} 万円</span>
+                  </div>
+                  <p class="text-[10px] text-amber-900/80 mt-0.5">将来返済が必要な融資残高（返済が進むと縮小）</p>
+                </div>
+
+                <div class="p-2.5 rounded-xl ${cur.totalEquity >= 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-rose-50 border-rose-300'}">
+                  <div class="flex items-center justify-between text-[11px] font-bold ${cur.totalEquity >= 0 ? 'text-indigo-950' : 'text-rose-900'}">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs ${cur.totalEquity >= 0 ? 'bg-indigo-600' : 'bg-rose-600'} inline-block"></span>純資産（自己資本）</span>
+                    <span>${formatYen(cur.totalEquity)} 万円</span>
+                  </div>
+                  <p class="text-[10px] opacity-85 mt-0.5">元入金 ${formatYen(cur.paidInCapital)}万 ＋ 累積利益剰余金 ${formatYen(cur.retainedEarnings)}万</p>
+                </div>
+
+                ${negEquity < 0 ? `
+                  <div class="p-2 rounded-xl bg-rose-100 border border-rose-300 text-[11px] font-bold text-rose-800">
+                    🚨 純資産マイナス（債務超過状態）
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // 5ヵ年ミニ視覚ブロックカード一覧
+      miniWrap.innerHTML = bsSeries.map((b, i) => {
+        const isSelected = i === idx;
+        const aH = Math.min(100, Math.max(12, ((Math.max(0, b.cash) + b.fixedAssets) / maxBarScale) * 100));
+        const aCashShare = (Math.max(0, b.cash) + b.fixedAssets) > 0
+          ? (Math.max(0, b.cash) / (Math.max(0, b.cash) + b.fixedAssets)) * 100
+          : 50;
+
+        const rH = Math.min(100, Math.max(12, ((b.longTermDebt + Math.max(0, b.totalEquity)) / maxBarScale) * 100));
+        const rDebtShare = (b.longTermDebt + Math.max(0, b.totalEquity)) > 0
+          ? (b.longTermDebt / (b.longTermDebt + Math.max(0, b.totalEquity))) * 100
+          : 50;
+
+        return `
+          <button type="button" onclick="selectBsYear(${i})" class="text-left p-2.5 rounded-xl border transition ${isSelected ? 'bg-earth-50 border-earth-600 ring-2 ring-earth-500/30' : 'bg-white border-sand-200 hover:border-earth-400'}">
+            <div class="flex items-center justify-between text-[11px] font-bold text-earth-900 mb-1.5">
+              <span>${b.label}</span>
+              <span class="${b.totalEquity < 0 ? 'text-rose-600' : 'text-indigo-700'}">${b.totalAssets > 0 ? Math.round((b.totalEquity / b.totalAssets) * 100) : 0}%</span>
+            </div>
+            <div class="h-16 flex items-end justify-center gap-2 px-2 pt-2 bg-sand-50 rounded-lg border border-sand-100">
+              <!-- 左：資産ミニ棒 -->
+              <div class="w-6 flex flex-col rounded-t-xs overflow-hidden" style="height: ${aH.toFixed(0)}%" title="資産: ${formatYen(b.totalAssets)}万円">
+                <div style="height: ${aCashShare.toFixed(0)}%" class="bg-sky-500"></div>
+                <div class="flex-1 bg-emerald-600"></div>
+              </div>
+              <!-- 右：負債＋純資産ミニ棒 -->
+              <div class="w-6 flex flex-col rounded-t-xs overflow-hidden" style="height: ${rH.toFixed(0)}%" title="負債${formatYen(b.longTermDebt)}万 / 純資産${formatYen(b.totalEquity)}万円">
+                <div style="height: ${rDebtShare.toFixed(0)}%" class="bg-amber-500"></div>
+                <div class="flex-1 ${b.totalEquity < 0 ? 'bg-rose-500' : 'bg-indigo-600'}"></div>
+              </div>
+            </div>
+            <div class="mt-1.5 text-[10px] text-gray-600 flex justify-between">
+              <span>資:${Math.round(b.totalAssets)}万</span>
+              <span class="${b.totalEquity < 0 ? 'text-rose-600 font-bold' : 'text-indigo-800 font-semibold'}">純:${Math.round(b.totalEquity)}万</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
     function renderBalanceSheetSection(sim) {
+      renderVisualBalanceSheet(sim.bsSeries);
+
       const depDisp = document.getElementById('depreciationYearsDisplay');
       if (depDisp) depDisp.textContent = `${appState.depreciationYears || 7}年`;
 
@@ -3078,7 +3316,7 @@
             </tr>
           `;
         }
-        const cells = sim.bsSeries.map((bsCol, idx) => {
+        const cells = sim.bsSeries.map((bsCol, i) => {
           const val = bsCol[r.key];
           let cls = 'text-gray-800';
           if (r.signed) {
@@ -3086,7 +3324,7 @@
           } else if (r.bold) {
             cls = 'text-gray-900 font-bold';
           }
-          const colBg = idx === 0 ? 'bg-sand-50/60' : '';
+          const colBg = i === 0 ? 'bg-sand-50/60' : '';
           return `<td class="py-2 px-3 ${cls} ${colBg}">${formatYen(val)}</td>`;
         }).join('');
         return `
@@ -3401,57 +3639,86 @@
           const c = CROPS_DB.find(x => x.id === p.cropId);
           const e = ENVIRONMENTS_DB.find(x => x.id === p.envId);
           const yMap = ensureCropYearlyChannels(p.cropId);
-          return `  - ${p.plotName}（${e.name}・${Math.round(p.area10a * 10)}a）: ${c.name} [${p.plantMonth}月定植 / ${p.harvestStart}〜${p.harvestEnd}月収穫] (1年目JA${yMap[1].ja}%→5年目JA${yMap[5].ja}%/EC${yMap[5].ec}%)`;
+          return `  - ${p.plotName}（${e.name}・${Math.round(p.area10a * 10)}a）: ${c.name} [${p.plantMonth}月定植 / ${p.harvestStart}〜${p.harvestEnd}月収穫] 1年目直売系${yMap[1].direct + yMap[1].ec + yMap[1].tourism}% → 5年目直売系${yMap[5].direct + yMap[5].ec + yMap[5].tourism}%`;
         }),
-        '■ 収支・キャッシュフロー・バランスシート予測:',
-        `  - 1年目: 売上 ${formatYen(y1.sales)}万円 / 営業利益 ${formatYen(y1.operatingProfit)}万円 / 期末現預金 ${formatYen(y1.endingCash)}万円`,
-        `  - 5年目: 売上 ${formatYen(y5.sales)}万円 / 営業利益 ${formatYen(y5.operatingProfit)}万円 / 期末現預金 ${formatYen(y5.endingCash)}万円`,
-        `  - 5年目末B/S: 総資産 ${formatYen(bs5.totalAssets)}万円 / 借入残高 ${formatYen(bs5.longTermDebt)}万円 / 純資産 ${formatYen(bs5.totalEquity)}万円（自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%）`,
-        `  - 1〜2年目最低現預金残高: ${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）`
-      ];
+        `■ 1年目予測: 売上 ${formatYen(y1.sales)}万円 / 営業利益 ${formatYen(y1.operatingProfit)}万円 / 期末現預金 ${formatYen(y1.endingCash)}万円`,
+        `■ 5年目予測: 売上 ${formatYen(y5.sales)}万円 / 営業利益 ${formatYen(y5.operatingProfit)}万円 / 期末現預金 ${formatYen(y5.endingCash)}万円`,
+        `■ 5年目末B/S: 総資産 ${formatYen(bs5.totalAssets)}万円 / 借入残高 ${formatYen(bs5.longTermDebt)}万円 / 純資産 ${formatYen(bs5.totalEquity)}万円（自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%）`
+      ].join('\n');
 
-      const textarea = document.createElement('textarea');
-      textarea.value = lines.join('\n');
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-
-      const btnText = document.getElementById('copyPlanBtnText');
-      btnText.textContent = 'コピーしました！';
-      showToast('事業計画書サマリーをクリップボードにコピーしました');
-      setTimeout(() => { btnText.textContent = 'テキストコピー'; }, 2500);
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = lines;
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('事業計画サマリーをクリップボードにコピーしました');
+      } catch (e) {
+        showToast('コピーに失敗しました');
+      }
+      document.body.removeChild(tempTextArea);
     }
 
     // =========================================================================
-    // 8. Gemini AI 壁打ちチャット機能（models/gemini-3.8-flash 連携）
+    // 8. AI壁打ちコンサルタント（Gemini API: models/gemini-3.8-flash）
     // =========================================================================
 
+    function toggleAiDrawer() {
+      const drawer = document.getElementById('aiDrawer');
+      const backdrop = document.getElementById('aiDrawerBackdrop');
+      const isClosed = drawer.classList.contains('translate-x-full');
+      if (isClosed) {
+        backdrop.classList.remove('hidden');
+        drawer.classList.remove('translate-x-full');
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    function toggleApiKeyInput() {
+      const wrap = document.getElementById('apiKeyInputWrapper');
+      wrap.classList.toggle('hidden');
+    }
+
     function loadApiKeyFromStorage() {
-      const savedKey = localStorage.getItem(API_KEY_STORAGE) || '';
-      const input = document.getElementById('geminiApiKeyInput');
-      if (input) input.value = savedKey;
-      updateApiKeyBadge(savedKey);
+      try {
+        const key = localStorage.getItem(API_KEY_STORAGE) || '';
+        const input = document.getElementById('geminiApiKeyInput');
+        if (input) input.value = key;
+        updateApiKeyBadge(key);
+      } catch (e) {
+        updateApiKeyBadge('');
+      }
     }
 
     function saveApiKey() {
-      const val = document.getElementById('geminiApiKeyInput').value.trim();
-      localStorage.setItem(API_KEY_STORAGE, val);
-      updateApiKeyBadge(val);
-      if (val) showToast('Gemini APIキーをブラウザに保存しました');
+      const input = document.getElementById('geminiApiKeyInput');
+      const key = (input.value || '').trim();
+      try {
+        if (key) {
+          localStorage.setItem(API_KEY_STORAGE, key);
+          showToast('Gemini APIキーをブラウザに保存しました');
+        } else {
+          localStorage.removeItem(API_KEY_STORAGE);
+        }
+      } catch (e) {
+        console.warn('APIキー保存失敗:', e);
+      }
+      updateApiKeyBadge(key);
     }
 
     function clearApiKey() {
       localStorage.removeItem(API_KEY_STORAGE);
       document.getElementById('geminiApiKeyInput').value = '';
       updateApiKeyBadge('');
-      showToast('保存されていたAPIキーを消去しました');
+      showToast('ブラウザからAPIキーを削除しました');
     }
 
     function updateApiKeyBadge(key) {
       const badge = document.getElementById('apiKeyStatusBadge');
       if (key && key.length > 10) {
-        badge.textContent = '設定済 ✓';
+        badge.textContent = '設定済';
         badge.className = 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-900 font-bold';
       } else {
         badge.textContent = '未設定';
@@ -3459,208 +3726,169 @@
       }
     }
 
-    function toggleApiKeyInput() {
-      document.getElementById('apiKeyInputWrapper').classList.toggle('hidden');
+    function buildCurrentPlanContextPrompt() {
+      const sim = latestSimulation || calculateFullSimulation();
+      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
+      const y1 = sim.years[0];
+      const y3 = sim.years[2];
+      const y5 = sim.years[4];
+      const bs0 = sim.bsSeries[0];
+      const bs5 = sim.bsSeries[5];
+
+      const plotDetails = appState.plots.map(p => {
+        const c = CROPS_DB.find(x => x.id === p.cropId) || CROPS_DB[0];
+        const e = ENVIRONMENTS_DB.find(x => x.id === p.envId) || ENVIRONMENTS_DB[0];
+        const yMap = ensureCropYearlyChannels(p.cropId);
+        const capexPer10a = p.area10a > 0 ? Math.round(p.customCapex / p.area10a) : 0;
+        return `- 圃場「${p.plotName}」(${e.name}, ${Math.round(p.area10a * 10)}a): ${c.name} | 定植${p.plantMonth}月・収穫${p.harvestStart}〜${p.harvestEnd}月 | 設備投資${p.customCapex}万円(10a換算${capexPer10a}万/相場${e.capexMin10a}〜${e.capexMax10a}万) | 基準収量${p.yield10a}kg/10a(相場${c.yieldRange[0]}〜${c.yieldRange[1]}) | 基準単価${p.pricePerKg}円/kg(相場${c.priceRange[0]}〜${c.priceRange[1]}) | 10a経営費${p.cost10a}万円(相場${c.costRange[0]}〜${c.costRange[1]}) | 1年目販路[JA${yMap[1].ja}%/直売${yMap[1].direct}%/B2B${yMap[1].b2b}%/EC${yMap[1].ec}%/体験${yMap[1].tourism}%] → 5年目販路[JA${yMap[5].ja}%/直売${yMap[5].direct}%/B2B${yMap[5].b2b}%/EC${yMap[5].ec}%/体験${yMap[5].tourism}%]`;
+      }).join('\n');
+
+      return `
+【現在の脱サラ新規就農シミュレーションデータ】
+- 就農地域: ${region.name}（気候特性: ${region.climate}）
+- 準備度スコア: ${sim.readinessScore}%
+- 実経営面積: ${Math.round(sim.totalArea10a * 10)}a（露地 ${Math.round(sim.openArea10a * 10)}a / ハウス ${Math.round(sim.houseArea10a * 10)}a）、延べ作付面積: ${Math.round(sim.totalCroppedArea10a * 10)}a
+- 世帯・体制・生活費: ${appState.householdSize}人世帯 / 家族従事${appState.familyWorkers}名 / 常勤${appState.fullTimeStaff}名(月${appState.fullTimeSalary}万×${appState.fullTimeMonthsPerYear}ヶ月) / パート${appState.partTimeStaff}名(時給${appState.partTimeHourly}円×月${appState.partTimeHoursPerMonth}h×${appState.partTimeMonthsPerYear}ヶ月) / 家計生活費 月${appState.monthlyLivingCost}万円(年${appState.monthlyLivingCost * 12}万円)
+- 資金調達・投資: 自己資金${appState.ownCapital}万円、融資${appState.loanAmount}万円(${appState.loanYears}年・据置${appState.loanGraceYears}年・金利${appState.loanRate}%)、経営開始資金 年${appState.subsidyAnnual}万円×${appState.subsidyYears}年、初期投資総額${formatYen(sim.totalCapex)}万円(設備平均耐用年数${appState.depreciationYears || 7}年)
+- 販促計画: 月額${appState.monthlyPromoCost}万円、初期ブランド費${appState.initialBrandingCost}万円
+- 圃場・品目・年次販路詳細:
+${plotDetails}
+- 収支・CF予測:
+  1年目: 売上${formatYen(y1.sales)}万 / 営業利益${formatYen(y1.operatingProfit)}万 / 生活費返済後CF ${formatYen(y1.netSurplusAfterLiving)}万 / 期末現預金${formatYen(y1.endingCash)}万
+  3年目: 売上${formatYen(y3.sales)}万 / 営業利益${formatYen(y3.operatingProfit)}万 / 生活費返済後CF ${formatYen(y3.netSurplusAfterLiving)}万 / 期末現預金${formatYen(y3.endingCash)}万
+  5年目: 売上${formatYen(y5.sales)}万 / 営業利益${formatYen(y5.operatingProfit)}万 / 生活費返済後CF ${formatYen(y5.netSurplusAfterLiving)}万 / 期末現預金${formatYen(y5.endingCash)}万
+  1-2年目最低現預金残高: ${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）
+- 貸借対照表（B/S）推移:
+  開業時: 総資産${formatYen(bs0.totalAssets)}万（現預金${formatYen(bs0.cash)}万・固定${formatYen(bs0.fixedAssets)}万）/ 借入${formatYen(bs0.longTermDebt)}万 / 純資産${formatYen(bs0.totalEquity)}万
+  5年目末: 総資産${formatYen(bs5.totalAssets)}万（現預金${formatYen(bs5.cash)}万・固定${formatYen(bs5.fixedAssets)}万）/ 借入${formatYen(bs5.longTermDebt)}万 / 純資産${formatYen(bs5.totalEquity)}万（自己資本比率${sim.bsMetrics.equityRatio5.toFixed(1)}%）
+`;
     }
 
-    function toggleAiDrawer() {
+    function sendSuggestedPrompt(promptText) {
       const drawer = document.getElementById('aiDrawer');
-      const backdrop = document.getElementById('aiDrawerBackdrop');
-      const isClosed = drawer.classList.contains('translate-x-full');
-      drawer.classList.toggle('translate-x-full', !isClosed);
-      backdrop.classList.toggle('hidden', !isClosed);
+      if (drawer.classList.contains('translate-x-full')) {
+        toggleAiDrawer();
+      }
+      document.getElementById('aiUserInput').value = promptText;
+      sendAiMessage(promptText);
     }
 
     function askAiAboutRisks() {
-      const drawer = document.getElementById('aiDrawer');
-      if (drawer.classList.contains('translate-x-full')) toggleAiDrawer();
-      sendSuggestedPrompt('現在のリスク診断結果と5ヵ年キャッシュフロー・バランスシート予測を踏まえて、最も優先して手を打つべき経営改善策を3つ提案してください。');
-    }
-
-    function sendSuggestedPrompt(text) {
-      document.getElementById('aiUserInput').value = text;
-      submitAiMessage(text);
+      const sim = latestSimulation || calculateFullSimulation();
+      const risks = evaluateBusinessRisks(sim);
+      const riskSummary = risks.map(r => `・[${r.badge}] ${r.title}: ${r.detail}`).join('\n');
+      const prompt = `以下のリスク自動診断結果と現在の事業計画数値をもとに、最優先で取り組むべき改善策と具体的な数値修正案をアドバイスしてください。\n\n${riskSummary}`;
+      sendSuggestedPrompt(prompt);
     }
 
     function handleAiTextareaKeydown(e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        handleAiChatSubmit(e);
+        const val = e.target.value.trim();
+        if (val) {
+          e.target.value = '';
+          sendAiMessage(val);
+        }
       }
     }
 
     function handleAiChatSubmit(e) {
       e.preventDefault();
-      const text = document.getElementById('aiUserInput').value.trim();
-      if (!text) return;
-      submitAiMessage(text);
+      const input = document.getElementById('aiUserInput');
+      const val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      sendAiMessage(val);
     }
 
-    function buildCurrentPlanSystemContext() {
-      const sim = latestSimulation;
-      const region = REGIONS_DB.find(r => r.id === appState.regionId) || REGIONS_DB[2];
-      const risks = evaluateBusinessRisks(sim);
-      const bs0 = sim.bsSeries[0];
-      const bs5 = sim.bsSeries[5];
-
-      const plotsSummary = appState.plots.map(p => {
-        const c = CROPS_DB.find(x => x.id === p.cropId);
-        const e = ENVIRONMENTS_DB.find(x => x.id === p.envId);
-        const yMap = ensureCropYearlyChannels(p.cropId);
-        const bComments = evaluatePlotBenchmarks(p).map(b => `${b.label}:${b.level}`).join(', ');
-        return `- 圃場「${p.plotName}」(${e.name}, ${Math.round(p.area10a * 10)}a): ${c.name}, ${p.plantMonth}月定植, ${p.harvestStart}〜${p.harvestEnd}月収穫, 設備投資${p.customCapex}万円, 10a収量${p.yield10a}kg(標準${c.yieldRange[0]}-${c.yieldRange[1]}), 単価${p.pricePerKg}円/kg(標準${c.priceRange[0]}-${c.priceRange[1]}), 10a経営費${p.cost10a}万円 | 相場診断:[${bComments}] | 販路1年目(JA:${yMap[1].ja}%,直売:${yMap[1].direct}%,B2B:${yMap[1].b2b}%,EC:${yMap[1].ec}%,観光:${yMap[1].tourism}%) → 5年目(JA:${yMap[5].ja}%,直売:${yMap[5].direct}%,B2B:${yMap[5].b2b}%,EC:${yMap[5].ec}%,観光:${yMap[5].tourism}%)`;
-      }).join('\n');
-
-      return `あなたは日本の脱サラ新規就農者を専門に支援する超一流の農業経営コンサルタント・中小企業診断士です。
-ユーザーの現在の「Agri-Launchpad 経営シミュレーションデータ」は以下の通りです。必ずこの具体的な数値・作物・地域・年次別販路・相場診断・バランスシート結果を前提として、実践的で温かいながらもプロとして厳しい視点も交えた壁打ち回答を行ってください。
-
-【現在のユーザー経営計画データ】
-- 就農予定地域: ${region.name}（気候特性: ${region.climate} / リスク: ${region.risks}）
-- 総合準備度スコア: ${sim.readinessScore}%
-- 総経営面積（実圃場）: ${Math.round(sim.totalArea10a * 10)}a（露地 ${Math.round(sim.openArea10a * 10)}a / ハウス ${Math.round(sim.houseArea10a * 10)}a / 延べ作付 ${Math.round(sim.totalCroppedArea10a * 10)}a）
-- 世帯・経営体制: ${appState.householdSize}人世帯、家族従事 ${appState.familyWorkers}名、常勤雇用 ${appState.fullTimeStaff}名（月給${appState.fullTimeSalary}万円×年${appState.fullTimeMonthsPerYear || 12}ヶ月）、パート ${appState.partTimeStaff}名（時給${appState.partTimeHourly}円×月${appState.partTimeHoursPerMonth}h×年${appState.partTimeMonthsPerYear || 12}ヶ月）
-- 家計生活費: 月額 ${appState.monthlyLivingCost}万円（年額 ${appState.monthlyLivingCost * 12}万円）
-- 初期投資総額: ${formatYen(sim.totalCapex)}万円（自己資金 ${appState.ownCapital}万円、融資 ${appState.loanAmount}万円、補助金年 ${appState.subsidyAnnual}万円×${appState.subsidyYears}年）
-- 販促予算: 月額 ${appState.monthlyPromoCost}万円、初期ブランド費 ${appState.initialBrandingCost}万円
-- 作付リレー＆年次別販路計画:
-${plotsSummary}
-- 収支・キャッシュフロー予測:
-  * 1年目: 売上 ${formatYen(sim.years[0].sales)}万円 / 営業利益 ${formatYen(sim.years[0].operatingProfit)}万円 / 期末現預金 ${formatYen(sim.years[0].endingCash)}万円
-  * 3年目: 売上 ${formatYen(sim.years[2].sales)}万円 / 営業利益 ${formatYen(sim.years[2].operatingProfit)}万円 / 期末現預金 ${formatYen(sim.years[2].endingCash)}万円
-  * 5年目: 売上 ${formatYen(sim.years[4].sales)}万円 / 営業利益 ${formatYen(sim.years[4].operatingProfit)}万円 / 生活費・返済後余剰 ${formatYen(sim.years[4].netSurplusAfterLiving)}万円 / 期末現預金 ${formatYen(sim.years[4].endingCash)}万円
-  * 1〜2年目の最低現預金残高: ${formatYen(sim.lowestCash)}万円（${sim.lowestCashLabel}）
-- 予測貸借対照表（バランスシート B/S・平均耐用年数${appState.depreciationYears || 7}年）:
-  * 開業時(0年目末): 総資産 ${formatYen(bs0.totalAssets)}万円（流動${formatYen(bs0.cash)}万・固定${formatYen(bs0.fixedAssets)}万）/ 負債 ${formatYen(bs0.totalLiabilities)}万円 / 純資産 ${formatYen(bs0.totalEquity)}万円（自己資本比率 ${sim.bsMetrics.equityRatio0.toFixed(1)}%）
-  * 5年目末: 総資産 ${formatYen(bs5.totalAssets)}万円（流動${formatYen(bs5.cash)}万・固定${formatYen(bs5.fixedAssets)}万）/ 負債 ${formatYen(bs5.totalLiabilities)}万円 / 純資産 ${formatYen(bs5.totalEquity)}万円（自己資本比率 ${sim.bsMetrics.equityRatio5.toFixed(1)}%、債務償還年数 ${sim.bsMetrics.debtServiceYears.toFixed(1)}年、固定長期適合率 ${sim.bsMetrics.fixedToLongTermRatio5.toFixed(1)}%）
-- 自動診断されたリスク項目:
-${risks.map(r => `  * [${r.badge}] ${r.title}: ${r.detail}`).join('\n')}
-
-回答は読みやすいMarkdown風の箇条書きや見出し（太字など）を使い、具体的な数値根拠を示しながら提案してください。`;
-    }
-
-    async function submitAiMessage(userText) {
+    async function sendAiMessage(userText) {
       const apiKey = (document.getElementById('geminiApiKeyInput').value || localStorage.getItem(API_KEY_STORAGE) || '').trim();
-      const inputEl = document.getElementById('aiUserInput');
-      const sendBtn = document.getElementById('aiSendBtn');
-
-      inputEl.value = '';
-      appendChatBubble('user', userText);
-
       if (!apiKey) {
-        appendChatBubble('assistant', '⚠️ **Gemini APIキーが未設定です。**\n\n上部の「🔑 Gemini APIキー設定」欄にご自身の Google Gemini APIキー（`AIzaSy...`）を入力して「保存」を押してから再度送信してください。\n\n※指定モデル `models/gemini-3.8-flash` を呼び出し、あなたの現在の作付・年次別販路・収支・B/Sデータをもとに回答を生成します。');
+        appendChatBubble('assistant', '⚠️ Gemini APIキーが未設定です。上部の「🔑 Gemini APIキー設定」にご自身のAPIキーを入力して「保存」を押してからお試しください。');
         return;
       }
 
-      const loadingId = appendLoadingBubble();
+      appendChatBubble('user', userText);
+      const sendBtn = document.getElementById('aiSendBtn');
       sendBtn.disabled = true;
-      sendBtn.classList.add('opacity-50');
+      sendBtn.textContent = '...';
+      const loadingId = appendChatBubble('assistant', '💭 現在の営農計画・相場・B/S数値を分析中です...');
 
-      const systemContext = buildCurrentPlanSystemContext();
-      chatHistory.push({ role: 'user', parts: [{ text: userText }] });
+      const systemInstruction = `あなたは日本の新規就農（脱サラ農業）支援に精通した実践的かつ現実的な農業経営コンサルタントです。
+ユーザーの現在の事業計画データ（地域、面積、リレー作付、投資額、収量・単価・経営費の相場比較、1〜5年目の年次別販路配分、人件費・生活費、5年キャッシュフロー、バランスシートB/S）を踏まえ、
+1. 甘い見積もりや資金ショート・債務超過リスクがあれば率直に指摘する
+2. 具体的なアクションプランや数値調整の目安をわかりやすく提示する
+3. 専門用語は噛み砕き、丁寧かつ前向きな日本語で回答する
+ことを心がけてください。`;
 
-      const modelName = 'models/gemini-3.8-flash';
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${encodeURIComponent(apiKey)}`;
-
-      const payload = {
-        systemInstruction: {
-          parts: [{ text: systemContext }]
-        },
-        contents: chatHistory.slice(-10)
-      };
+      const combinedPrompt = `${buildCurrentPlanContextPrompt()}\n\n【ユーザーからの質問・壁打ち内容】\n${userText}`;
+      chatHistory.push({ role: 'user', parts: [{ text: combinedPrompt }] });
 
       try {
-        const response = await fetchWithRetry(apiUrl, {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemInstruction }] },
+            contents: chatHistory.slice(-8),
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1600
+            }
+          })
         });
 
         const data = await response.json();
-        removeBubble(loadingId);
+        removeChatBubble(loadingId);
 
         if (!response.ok) {
-          const errMsg = data?.error?.message || `HTTPエラー (${response.status})`;
-          appendChatBubble('assistant', `❌ **Gemini API 通信エラー**\n\nモデル \`${modelName}\` へのリクエストでエラーが発生しました：\n\`${errMsg}\`\n\nAPIキーの有効性やモデル利用権限をご確認ください。`);
+          const errMsg = (data && data.error && data.error.message) ? data.error.message : `HTTP ${response.status}`;
+          appendChatBubble('assistant', `❌ APIエラーが発生しました: ${errMsg}\nAPIキーの有効性や利用枠をご確認ください。`);
           chatHistory.pop();
-          return;
-        }
-
-        const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (replyText) {
+        } else {
+          const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '回答を生成できませんでした。';
           chatHistory.push({ role: 'model', parts: [{ text: replyText }] });
           appendChatBubble('assistant', replyText);
-        } else {
-          appendChatBubble('assistant', '⚠️ モデルからの応答テキストが空でした。質問を変えて再度お試しください。');
-          chatHistory.pop();
         }
       } catch (err) {
-        removeBubble(loadingId);
+        removeChatBubble(loadingId);
         chatHistory.pop();
-        appendChatBubble('assistant', `❌ **ネットワーク通信エラー**\n\nAPIサーバーに接続できませんでした: ${err.message}`);
+        appendChatBubble('assistant', `❌ 通信エラーが発生しました: ${err.message || 'ネットワーク接続をご確認ください'}`);
       } finally {
         sendBtn.disabled = false;
-        sendBtn.classList.remove('opacity-50');
-      }
-    }
-
-    async function fetchWithRetry(url, options, maxRetries = 3) {
-      let delay = 1000;
-      for (let i = 0; i <= maxRetries; i++) {
-        const res = await fetch(url, options);
-        if (res.status !== 429 && res.status < 500) return res;
-        if (i < maxRetries) {
-          await new Promise(r => setTimeout(r, delay));
-          delay *= 2;
-        } else {
-          return res;
-        }
+        sendBtn.textContent = '送信';
       }
     }
 
     function appendChatBubble(role, text) {
       const container = document.getElementById('aiChatMessages');
-      const div = document.createElement('div');
-      if (role === 'user') {
-        div.className = 'ml-8 bg-earth-700 text-white rounded-2xl rounded-tr-none p-3 text-xs leading-relaxed shadow-xs whitespace-pre-wrap';
-        div.textContent = text;
-      } else {
-        div.className = 'mr-4 bg-white border border-sand-200 text-gray-800 rounded-2xl rounded-tl-none p-3.5 text-xs leading-relaxed shadow-xs space-y-1.5';
-        div.innerHTML = formatMarkdownLite(text);
-      }
-      container.appendChild(div);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function appendLoadingBubble() {
-      const id = 'loading_' + Date.now();
-      const container = document.getElementById('aiChatMessages');
+      const id = 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+      const isUser = role === 'user';
       const div = document.createElement('div');
       div.id = id;
-      div.className = 'mr-8 bg-white border border-sand-200 text-earth-700 rounded-2xl rounded-tl-none p-3 text-xs flex items-center gap-2';
-      div.innerHTML = `<span class="inline-block w-3.5 h-3.5 border-2 border-earth-600 border-t-transparent rounded-full animate-spin"></span><span>Gemini (models/gemini-3.8-flash) が経営データを分析中...</span>`;
+      div.className = isUser ? 'flex justify-end' : 'flex justify-start';
+      div.innerHTML = `
+        <div class="${isUser
+          ? 'bg-earth-700 text-white rounded-2xl rounded-tr-none max-w-[85%]'
+          : 'bg-white border border-sand-200 text-gray-800 rounded-2xl rounded-tl-none max-w-[92%] shadow-2xs'} px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</div>
+      `;
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
       return id;
     }
 
-    function removeBubble(id) {
+    function removeChatBubble(id) {
       const el = document.getElementById(id);
       if (el) el.remove();
     }
 
-    function formatMarkdownLite(md) {
-      let html = escapeHtml(md);
-      html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-earth-900">$1</strong>');
-      html = html.replace(/`([^`]+)`/g, '<code class="bg-sand-100 px-1 py-0.5 rounded text-rose-700 font-mono text-[11px]">$1</code>');
-      html = html.replace(/^### (.+)$/gm, '<div class="font-bold text-sm text-earth-900 pt-1">$1</div>');
-      html = html.replace(/^## (.+)$/gm, '<div class="font-bold text-sm text-earth-900 border-b border-sand-200 pb-0.5 pt-1">$1</div>');
-      html = html.replace(/\n/g, '<br>');
-      return html;
-    }
+    // =========================================================================
+    // 9. ユーティリティ
+    // =========================================================================
 
     function escapeHtml(str) {
-      if (typeof str !== 'string') return '';
-      return str
+      return String(str || '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
@@ -3668,14 +3896,15 @@ ${risks.map(r => `  * [${r.badge}] ${r.title}: ${r.detail}`).join('\n')}
         .replace(/'/g, '&#039;');
     }
 
+    let toastTimer = null;
     function showToast(msg) {
       const toast = document.getElementById('toastNotification');
       toast.textContent = msg;
       toast.classList.remove('hidden');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
         toast.classList.add('hidden');
-      }, 3000);
+      }, 2800);
     }
   </script>
 </body>
